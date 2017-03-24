@@ -8,13 +8,13 @@ from flask import jsonify, send_from_directory, session
 from flask_login import current_user, login_user
 from werkzeug.utils import secure_filename
 
-from .forms import ClaimForm, MemberForm, TerminalForm
+from .forms import ClaimForm, MemberForm, TerminalForm, GOPForm
 from .forms import SMSVerificationForm
 from .twillo_2_factor_authentication import send_confirmation_code
 from ..api.helpers import convert_dict_claim_model, convert_dict_member_model
 from ..api.helpers import prepare_claim_dict, prepare_member_dict
 from . import main
-from .. import config, db, models
+from .. import config, db, models, mail
 from ..models import monthdelta, login_required
 
 def allowed_file(filename):
@@ -442,7 +442,7 @@ def claims():
                                           pagination=pagination)
 
 
-@main.route('/claim/<int:claim_id>')
+@main.route('/claim/<int:claim_id>', methods=['GET', 'POST'])
 @login_required()
 def claim(claim_id):
     if current_user.get_type() == 'provider':
@@ -458,8 +458,183 @@ def claim(claim_id):
     if current_user.get_role() == 'admin':
         claim = models.Claim.query.get(claim_id)
 
-    # render the "claim.html" template with the given claim
-    return render_template('claim.html', claim=claim)
+    form = GOPForm()
+
+    if current_user.get_type() == 'provider':
+        form.payer.choices = [('0', 'None')]
+        form.payer.choices += [(p.id, p.company) for p in \
+                               current_user.provider.payers]
+
+        form.icd_codes.choices = [(i.id, i.code) for i in \
+            models.ICDCode.query.filter(models.ICDCode.code != 'None' and \
+            models.ICDCode.code != '')]
+        
+        form.doctor_name.choices = [('0', 'None')]
+        form.doctor_name.choices += [(d.id, d.name + ' (%s)' % d.doctor_type) \
+                                    for d in current_user.provider.doctors]
+
+        form.name.data = claim.member.name
+        form.dob.data = claim.member.dob.strftime('%d/%m/%Y')
+        form.policy_number.data = claim.member.client_policy_number
+        form.admission_date.data = claim.datetime.strftime('%d/%m/%Y')
+        form.admission_time.data = claim.datetime.strftime('%I:%M %p')
+        form.quotation.data = claim.amount
+        form.gender.data = claim.member.sex
+        form.patient_id.data = claim.member.client_id_number
+        form.tel.data = claim.member.telephone
+
+    if form.validate_on_submit():
+        dob = datetime.strptime(form.dob.data, '%d/%m/%Y')
+        admission_date = datetime.strptime(form.admission_date.data + ' ' + \
+            form.admission_time.data, '%d/%m/%Y %I:%M %p')
+        admission_time = admission_date
+
+        if form.medical_details_previously_admitted.data:
+            previously_admitted = datetime.strptime(
+                form.medical_details_previously_admitted.data, '%d/%m/%Y')
+        else:
+            previously_admitted = None
+
+        filename = secure_filename(form.patient_photo.data.filename)
+
+        if filename and allowed_file(filename):
+            filename = str(random.randint(100000, 999999)) + filename
+            form.patient_photo.data.save(
+                os.path.join(config['development'].UPLOAD_FOLDER, filename))
+
+        if not filename:
+            filename = ''
+
+        patient = models.Patient.query.filter_by(
+            patient_id=form.patient_id.data).first()
+
+        if not patient:
+            if filename:
+                photo_filename = '/static/uploads/' + filename
+            else:
+                photo_filename = '/static/img/person-solid.png'
+
+            medical_details = models.MedicalDetails(
+                symptoms=form.medical_details_symptoms.data,
+                temperature=form.medical_details_temperature.data,
+                heart_rate=form.medical_details_heart_rate.data,
+                respiration=form.medical_details_respiration.data,
+                blood_pressure=form.medical_details_blood_pressure.data,
+                physical_finding=form.medical_details_physical_finding.data,
+                health_history=form.medical_details_health_history.data,
+                previously_admitted=previously_admitted,
+                diagnosis=form.medical_details_diagnosis.data,
+                in_patient=form.medical_details_in_patient.data,
+                test_results=form.medical_details_test_results.data,
+                current_therapy=form.medical_details_current_therapy.data,
+                treatment_plan=form.medical_details_treatment_plan.data
+            )
+
+            patient = models.Patient(
+                name=form.name.data,
+                dob=dob,
+                gender=form.gender.data,
+                patient_id=form.patient_id.data,
+                tel=form.tel.data,
+                photo=photo_filename,
+                policy_number=form.policy_number.data)
+
+        # try to convert the values to float or, if error, convert to zero
+        room_price = to_float_or_zero(form.room_price.data)
+        doctor_fee = to_float_or_zero(form.doctor_fee.data)
+        surgery_fee = to_float_or_zero(form.surgery_fee.data)
+        medication_fee = to_float_or_zero(form.medication_fee.data)
+        quotation = to_float_or_zero(form.quotation.data)
+
+        payer = models.Payer.query.get(form.payer.data)
+        gop = models.GuaranteeOfPayment(
+                provider=current_user.provider,
+                claim=claim,
+                payer=payer,
+                patient=patient,
+                patient_action_plan=form.patient_action_plan.data,
+                doctor_name=models.Doctor.query.get(int(form.doctor_name.data)).name,
+                admission_date=admission_date,
+                admission_time=admission_time,
+                reason=form.reason.data,
+                room_price=room_price,
+                status='pending',
+                room_type=form.room_type.data,
+                patient_medical_no=form.patient_medical_no.data,
+                doctor_fee=doctor_fee,
+                surgery_fee=surgery_fee,
+                medication_fee=medication_fee,
+                timestamp=datetime.now(),
+                quotation=quotation,
+                medical_details=medical_details
+                )
+
+        for icd_code_id in form.icd_codes.data:
+            icd_code = models.ICDCode.query.get(int(icd_code_id))
+            gop.icd_codes.append(icd_code)
+        
+        db.session.add(gop)
+        db.session.commit()
+        
+        # initializing user and random password 
+        user = None
+        rand_pass = None
+        
+        # if the payer is registered as a user in our system
+        if gop.payer.user:
+            if gop.payer.pic_email:
+                recipient_email = gop.payer.pic_email
+            elif gop.payer.pic_alt_email:
+                recipient_email = gop.payer.pic_alt_email
+            else:
+                recipient_email = gop.payer.user.email
+            # getting payer id for sending notification    
+            notification_payer_id = gop.payer.user.id
+            
+        # if no, we register him, set the random password and send
+        # the access credentials to him
+        else:
+            recipient_email = gop.payer.pic_email
+            rand_pass = pass_generator(size=8)
+            user = models.User(email=gop.payer.pic_email,
+                    password=rand_pass,
+                    user_type='payer',
+                    payer=gop.payer)
+            db.session.add(user)
+            # getting payer id for sending notification 
+            notification_payer_id = user.id
+
+        msg = Message("Request for GOP - %s" % gop.provider.company,
+                      sender=("MediPay",
+                              "request@app.medipayasia.com"),
+                      recipients=[recipient_email])
+
+        msg.html = render_template("request-email.html", gop=gop,
+                                   root=request.url_root, user=user,
+                                   rand_pass = rand_pass, gop_id=gop.id)
+
+        
+        # send the email
+        try:
+            mail.send(msg)
+        except Exception as e:
+            pass
+        
+        # Creating notification message
+        notification_message = "Request for Intial GOP - %s" % gop.provider.company
+        notification_message = notification_message + "<BR>"
+        notification_message = notification_message + "<a href=/request/%s>Go To GOP</a>" %(str(gop.id))
+        
+        notification = models.Notification(message=notification_message,user_id=notification_payer_id)
+        db.session.add(notification)
+        db.session.commit()
+        
+        flash('Your GOP request has been sent.')
+
+    if form:
+        return render_template('claim.html', claim=claim, form=form)
+    else:
+        return render_template('claim.html', claim=claim)
 
 
 @main.route('/claim/add', methods=['GET', 'POST'])
@@ -823,6 +998,8 @@ def member_edit(member_id):
         db.session.add(member)
         db.session.commit()
 
+        return redirect(url_for('main.member', member_id=member.id))
+
      # if the form was just opened
     if request.method != 'POST':
         form.marital_status.default = member.marital_status
@@ -875,7 +1052,6 @@ def member_edit(member_id):
         form.sequence.data = member.sequence
         form.patient_type.data = member.patient_type
 
-    # render the "member-form.html" template with the given terminal
     return render_template('member-form.html', form=form, member=member)
 
 
@@ -940,6 +1116,29 @@ def search():
             continue
 
     return jsonify(found)
+
+
+@main.route('/icd-code/search', methods=['GET'])
+def icd_code_search():
+    found = []
+    query = request.args.get('query')
+    query = query.lower()
+    
+    if not query:
+        return render_template('icd-code-search-results.html',
+                               icd_codes=None, query=query)
+
+    icd_codes = models.ICDCode.query.all()
+
+    for icd_code in icd_codes:
+        if query in icd_code.code.lower() \
+        or query in icd_code.description.lower() \
+        or query in icd_code.common_term.lower():
+            found.append(icd_code)
+            continue
+
+    return render_template('icd-code-search-results.html', icd_codes=found,
+                               query=query)
 
 
 @main.route('/sms-verify-form', methods=['GET', 'POST'])
