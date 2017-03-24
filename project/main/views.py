@@ -691,8 +691,6 @@ def claim_add():
         db.session.add(claim)
         db.session.commit()
 
-        claim.update_medipay()
-
         flash('The claim has been added.')
         return redirect(url_for('main.claims'))
 
@@ -755,8 +753,6 @@ def claim_edit(claim_id):
         claim.member_id = form.member_id.data
         claim.terminal_id = form.terminal_id.data
 
-        claim.update_medipay()
-
         # commit the database changes
         db.session.add(claim)
         db.session.commit()
@@ -787,8 +783,6 @@ def claim_gop_redirect(claim_id):
         return redirect(url_for('main.index'))
 
     claim = current_user.provider.claims.filter_by(id=claim_id).first()
-
-    claim.update_medipay()
 
     return redirect("https://medipayasia.com/request/%d" % \
                     claim.guarantee_of_payment.id)
