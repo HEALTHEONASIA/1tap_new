@@ -7,6 +7,7 @@ from flask import flash, render_template, redirect, request, url_for
 from flask import jsonify, send_from_directory, session
 from flask_login import current_user, login_user
 from werkzeug.utils import secure_filename
+from flask_mail import Message
 
 from .forms import ClaimForm, MemberForm, TerminalForm, GOPForm
 from .forms import SMSVerificationForm
