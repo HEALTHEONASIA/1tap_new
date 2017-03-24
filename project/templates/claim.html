@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Claim ID: {{ claim.id }}{% endblock %}
+{% block sidebar %}{{ super() }}{% endblock %}
+{% block breadcrumb %}
+  <ul class="breadcrumb">
+    <li>
+      <a href="{{ url_for('main.index') }}">Home</a>
+    </li>
+    <li>
+     <a href="{{ url_for('main.claims') }}">Claims</a>
+    </li>
+    <li>
+        <a href="#" class="active">Claim ID: {{ claim.id }}</a>
+    </li>
+  </ul>
+{% endblock %}
+{% block page_content %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-transparent">
+      <div class="panel-heading">
+        <div class="panel-title" style="font-size: 36px;">
+          Claim details
+          {% if current_user.get_type() == 'provider' %}
+            <a href="{{ url_for('main.claim_gop_redirect', claim_id=claim.id) }}" class="btn btn-primary" target="_blank" style="color: #3472F7; background: #3472F7; color: #fff; position: relative; top: -5px;">Send GOP request</a>
+          {% else %}
+            <a href="https://medipayasia.com/request/{{ claim.guarantee_of_payment.id }}" class="btn btn-primary" target="_blank" style="color: #3472F7; background: #3472F7; color: #fff; position: relative; top: -5px;">Open GOP request</a>
+          {% endif %}
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="panel-heading">
+        <div class="panel-title" style="font-size: 18px; text-transform: none; font-weight: normal;">
+            Patient info:
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="panel-body remove-top-padding">
+        <div class="row details">
+            <div class="col-md-2">
+                 {% if claim.member.photo %}
+                    <img src="{{ claim.member.photo }}" alt="Memer photo" style="height:150px;" class="img-responsive center-block">
+                 {% else %}
+                    <img class="img-responsive center-block"  style="height:150px;" src="/static/img/person-solid.png">
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Name:</label> <span>{{ claim.member.name }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Age:</label> <span>{{ claim.member.age() }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Gender:</label> <span>{{ claim.member.sex }}</span>
+                </div>
+                <div class="form-group">
+                    <label>ID Number:</label> <span>{{ claim.member.client_id_number }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Address:</label> <span>{{ claim.member.address }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Address 2:</label> <span>{{ claim.member.address_additional }}</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Membership plan type:</label> <span>{{ claim.member.plan_type }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Membership number:</label> <span>{{ claim.member.id }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Dependents:</label> <span>{{ claim.member.dependents }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label> <span>{{ claim.member.email }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Telephone:</label> <span>{{ claim.member.telephone }}</span>
+                </div>
+            </div>
+            {% if current_user.get_type() == 'provider' %}
+                <div class="col-md-2">
+                    <div class="form-group">
+                      <a href="{{ url_for('main.member_edit', member_id=claim.member.id) }}" class="btn btn-primary">Edit member info</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+      </div>
+      <div class="panel-heading" style="margin-top: 0; padding-top: 0;">
+        <div class="panel-title" style="margin: 0; padding: 0; font-size: 18px; font-weight: normal; text-transform: none;">
+            Claim info:
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="panel-body remove-top-padding">
+        <div class="row details">
+            <div class="col-md-2"></div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Status:</label> <span>{{ claim.status }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Claim number:</label> <span>{{ claim.claim_number }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Claim type:</label> <span>{{ claim.claim_type }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Datetime:</label> <span>{{ claim.datetime }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Admitted:</label> <span>{{ claim.admitted }}</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Discharged:</label> <span>{{ claim.discharged }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Amount:</label> <span>{{ claim.amount }}</span>
+                </div>
+                <div class="form-group">
+                    <label>ICD code:</label> <span>{{ claim.icd_code }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Terminal:</label> <span>{{ claim.terminal.serial_number }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Location:</label> <span>{{ claim.terminal.location }}</span>
+                </div>
+            </div>
+            {% if current_user.get_type() == 'provider' %}
+                <div class="col-md-2">
+                    <div class="form-group">
+                      <a href="{{ url_for('main.claim_edit', claim_id=claim.id) }}" class="btn btn-primary">Edit claim info</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+    <script>
+$(document).ready(function(){
+    $(".tabbed-table a").click(function(){
+        $(this).tab('show');
+    });
+});
+</script>
+{% endblock %}

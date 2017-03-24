@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block breadcrumb %}
+
+{% endblock %}
+{% block page_content %}
+<style>
+.Center-Image-Parent {
+  position: relative;
+}
+</style>
+<div class="row login-page">
+  <div class="col-md-4 hidden-sm hidden-xs" class="Center-Image-Parent">
+    <img  src="/static/img/system-home-page.png" alt="Cashless claims system" data-src="/static/img/system-home-page.png" data-src-retina="/static/img/system-home-page.png">
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <!-- <div class="panel-heading">
+        <div class="panel-title">
+        Log in to the site
+        </div>
+      </div> -->
+      <div class="panel-body">
+        <h5>
+        Sign in to 1TAP
+        </h5>
+        <form method="post" name="login">
+          {{ form.hidden_tag() }}
+          <div class="form-group">
+            <label for="email">{{ form.email.label }}</label>
+            {{ form.email(class_="form-control", autofocus="autofocus") }}
+            {% for error in form.email.errors %}
+                <span class="help">[{{ error }}]</span>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <label for="password">{{ form.password.label }}</label> <a href="{{ url_for('auth.forgot_password') }}" tabindex="-1">Forgot password?</a>
+            {{ form.password(class_="form-control") }}
+            {% for error in form.password.errors %}
+                <span class="help">[{{ error }}]</span>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            <div class="checkbox check-success">
+              {{ form.remember_me }}
+              <label for="remember_me">Remember me</label>
+            </div>
+            {{ form.submit(class_="btn btn-primary") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block page_js %}
+<!--
+  <script type="text/javascript">
+    $('input#user_type').val('');
+  </script>
+-->
+{% endblock %}

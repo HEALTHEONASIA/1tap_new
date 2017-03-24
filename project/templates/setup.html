@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Setup{% endblock %}
+{% block sidebar %}{{ super() }}{% endblock %}
+{% block breadcrumb %}
+  <ul class="breadcrumb">
+    <li>
+      <a href="{{ url_for('main.index') }}">Home</a>
+    </li>
+    <li>
+      <a href="#" class="active">Setup</a>
+    </li>
+  </ul>
+{% endblock %}
+{% block page_content %}
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h5>Setup</h5>
+        <h5>1-TAP</h5>
+      </div>
+    </div>
+  </div>
+{% endblock %}
