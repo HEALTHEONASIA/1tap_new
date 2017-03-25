@@ -481,7 +481,7 @@ def claim(claim_id):
         form.admission_time.data = claim.datetime.strftime('%I:%M %p')
         form.quotation.data = claim.amount
         form.gender.data = claim.member.gender
-        form.patient_id.data = claim.member.client_id_number
+        form.national_id.data = claim.member.client_id_number
         form.tel.data = claim.member.telephone
 
     if form.validate_on_submit():
@@ -507,7 +507,7 @@ def claim(claim_id):
             filename = ''
 
         patient = models.Patient.query.filter_by(
-            patient_id=form.patient_id.data).first()
+            national_id=form.national_id.data).first()
 
         if not patient:
             if filename:
@@ -535,7 +535,7 @@ def claim(claim_id):
                 name=form.name.data,
                 dob=dob,
                 gender=form.gender.data,
-                patient_id=form.patient_id.data,
+                national_id=form.national_id.data,
                 tel=form.tel.data,
                 photo=photo_filename,
                 policy_number=form.policy_number.data)
