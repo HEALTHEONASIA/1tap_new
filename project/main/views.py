@@ -461,19 +461,19 @@ def claim(claim_id):
 
     form = GOPForm()
 
+    form.payer.choices = [('0', 'None')]
+    form.payer.choices += [(p.id, p.company) for p in \
+                           current_user.provider.payers]
+
+    form.icd_codes.choices = [(i.id, i.code) for i in \
+        models.ICDCode.query.filter(models.ICDCode.code != 'None' and \
+        models.ICDCode.code != '')]
+    
+    form.doctor_name.choices = [('0', 'None')]
+    form.doctor_name.choices += [(d.id, d.name + ' (%s)' % d.doctor_type) \
+                                for d in current_user.provider.doctors]
+
     if current_user.get_type() == 'provider' and request.method != 'POST':
-        form.payer.choices = [('0', 'None')]
-        form.payer.choices += [(p.id, p.company) for p in \
-                               current_user.provider.payers]
-
-        form.icd_codes.choices = [(i.id, i.code) for i in \
-            models.ICDCode.query.filter(models.ICDCode.code != 'None' and \
-            models.ICDCode.code != '')]
-        
-        form.doctor_name.choices = [('0', 'None')]
-        form.doctor_name.choices += [(d.id, d.name + ' (%s)' % d.doctor_type) \
-                                    for d in current_user.provider.doctors]
-
         form.name.data = claim.member.name
         form.dob.data = claim.member.dob.strftime('%d/%m/%Y')
         form.policy_number.data = claim.member.policy_number
