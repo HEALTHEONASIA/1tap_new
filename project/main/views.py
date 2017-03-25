@@ -476,7 +476,7 @@ def claim(claim_id):
 
         form.name.data = claim.member.name
         form.dob.data = claim.member.dob.strftime('%d/%m/%Y')
-        form.policy_number.data = claim.member.client_policy_number
+        form.policy_number.data = claim.member.policy_number
         form.admission_date.data = claim.datetime.strftime('%d/%m/%Y')
         form.admission_time.data = claim.datetime.strftime('%I:%M %p')
         form.quotation.data = claim.amount
@@ -895,7 +895,7 @@ def member_add():
             exit_date=exit_date,
             product=form.product.data,
             plan=form.plan.data,
-            client_policy_number=form.client_policy_number.data,
+            policy_number=form.policy_number.data,
             client_id_number=form.client_id_number.data,
             card_number=form.card_number.data,
             plan_type=form.plan_type.data,
@@ -976,7 +976,7 @@ def member_edit(member_id):
         member.exit_date = exit_date 
         member.product = form.product.data
         member.plan = form.plan.data
-        member.client_policy_number = form.client_policy_number.data
+        member.policy_number = form.policy_number.data
         member.client_id_number = form.client_id_number.data
         member.card_number = form.card_number.data
         member.plan_type = form.plan_type.data
@@ -1038,7 +1038,7 @@ def member_edit(member_id):
 
         form.product.data = member.product
         form.plan.data = member.plan
-        form.client_policy_number.data = member.client_policy_number
+        form.policy_number.data = member.policy_number
         form.client_id_number.data = member.client_id_number
         form.card_number.data = member.card_number
         form.plan_type.data = member.plan_type

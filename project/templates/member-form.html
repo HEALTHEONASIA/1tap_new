@@ -158,11 +158,11 @@
               {{ form.plan(class_="form-control") }}
             </div>
             <div class="form-group">
-              <label>{{ form.client_policy_number.label }}</label>
-              {% for error in form.client_policy_number.errors %}
+              <label>{{ form.policy_number.label }}</label>
+              {% for error in form.policy_number.errors %}
                 <span class="help" style="color: #f55753;">[{{ error }}]</span>
               {% endfor %}
-              {{ form.client_policy_number(class_="form-control") }}
+              {{ form.policy_number(class_="form-control") }}
             </div>
             <div class="form-group">
               <label>{{ form.client_id_number.label }}</label>

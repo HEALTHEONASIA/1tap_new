@@ -177,7 +177,7 @@ def member_add_json():
             'exit_date': None,
             'product': None,
             'plan': None,
-            'client_policy_number': None,
+            'policy_number': None,
             'client_id_number': None,
             'card_number': None,
             'plan_type': None,
@@ -216,8 +216,8 @@ def member_add_json():
                                                            '%m/%d/%Y'),
                                product=row['product'],
                                plan=row['plan'],
-                               client_policy_number=\
-                                   row['client_policy_number'],
+                               policy_number=\
+                                   row['policy_number'],
                                client_id_number=row['client_id_number'],
                                card_number=row['card_number'],
                                plan_type=row['plan_type'],
@@ -283,7 +283,7 @@ def member_edit_json():
         member.exit_date = datetime.strptime(row['exit_date'], '%m/%d/%Y')
         member.product = row['product']
         member.plan = row['plan']
-        member.client_policy_number = row['client_policy_number']
+        member.policy_number = row['policy_number']
         member.client_id_number = row['client_id_number']
         member.card_number = row['card_number']
         member.plan_type = row['plan_type']
