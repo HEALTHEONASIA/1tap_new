@@ -481,7 +481,7 @@ def claim(claim_id):
         form.admission_time.data = claim.datetime.strftime('%I:%M %p')
         form.quotation.data = claim.amount
         form.gender.data = claim.member.gender
-        form.national_id.data = claim.member.client_id_number
+        form.national_id.data = claim.member.national_id
         form.tel.data = claim.member.telephone
 
     if form.validate_on_submit():
@@ -896,7 +896,7 @@ def member_add():
             product=form.product.data,
             plan=form.plan.data,
             policy_number=form.policy_number.data,
-            client_id_number=form.client_id_number.data,
+            national_id=form.national_id.data,
             card_number=form.card_number.data,
             plan_type=form.plan_type.data,
             remarks=form.remarks.data,
@@ -977,7 +977,7 @@ def member_edit(member_id):
         member.product = form.product.data
         member.plan = form.plan.data
         member.policy_number = form.policy_number.data
-        member.client_id_number = form.client_id_number.data
+        member.national_id = form.national_id.data
         member.card_number = form.card_number.data
         member.plan_type = form.plan_type.data
         member.remarks = form.remarks.data
@@ -1039,7 +1039,7 @@ def member_edit(member_id):
         form.product.data = member.product
         form.plan.data = member.plan
         form.policy_number.data = member.policy_number
-        form.client_id_number.data = member.client_id_number
+        form.national_id.data = member.national_id
         form.card_number.data = member.card_number
         form.plan_type.data = member.plan_type
         form.remarks.data = member.remarks

@@ -178,7 +178,7 @@ def member_add_json():
             'product': None,
             'plan': None,
             'policy_number': None,
-            'client_id_number': None,
+            'national_id': None,
             'card_number': None,
             'plan_type': None,
             'remarks': None,
@@ -218,7 +218,7 @@ def member_add_json():
                                plan=row['plan'],
                                policy_number=\
                                    row['policy_number'],
-                               client_id_number=row['client_id_number'],
+                               national_id=row['national_id'],
                                card_number=row['card_number'],
                                plan_type=row['plan_type'],
                                remarks=row['remarks'],
@@ -284,7 +284,7 @@ def member_edit_json():
         member.product = row['product']
         member.plan = row['plan']
         member.policy_number = row['policy_number']
-        member.client_id_number = row['client_id_number']
+        member.national_id = row['national_id']
         member.card_number = row['card_number']
         member.plan_type = row['plan_type']
         member.remarks = row['remarks']

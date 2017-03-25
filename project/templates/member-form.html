@@ -165,11 +165,11 @@
               {{ form.policy_number(class_="form-control") }}
             </div>
             <div class="form-group">
-              <label>{{ form.client_id_number.label }}</label>
-              {% for error in form.client_id_number.errors %}
+              <label>{{ form.national_id.label }}</label>
+              {% for error in form.national_id.errors %}
                 <span class="help" style="color: #f55753;">[{{ error }}]</span>
               {% endfor %}
-              {{ form.client_id_number(class_="form-control") }}
+              {{ form.national_id(class_="form-control") }}
             </div>
             <div class="form-group">
               <label>{{ form.card_number.label }}</label>

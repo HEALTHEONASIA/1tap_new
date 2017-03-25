@@ -189,7 +189,7 @@ class MemberForm(BaseForm):
     product = StringField('Product')
     plan = StringField('Plan')
     policy_number = StringField('Policy number')
-    client_id_number = StringField('Client ID number')
+    national_id = StringField('Client ID number')
     card_number = StringField('Card number')
     plan_type = StringField('Plan type')
     remarks = StringField('Remarks')
