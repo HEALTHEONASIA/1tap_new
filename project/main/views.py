@@ -482,7 +482,7 @@ def claim(claim_id):
         form.quotation.data = claim.amount
         form.gender.data = claim.member.gender
         form.national_id.data = claim.member.national_id
-        form.tel.data = claim.member.telephone
+        form.tel.data = claim.member.tel
 
     if form.validate_on_submit():
         dob = datetime.strptime(form.dob.data, '%d/%m/%Y')
@@ -678,11 +678,11 @@ def claim_add():
         # 2 Factor Authentication Code
         if member is not None:
             pass
-            # if member.telephone:
-            #     verification_code = send_confirmation_code(member.telephone)
+            # if member.tel:
+            #     verification_code = send_confirmation_code(member.tel)
             #     session['redirect_from'] = 'claim'
             #     session['claim'] = prepare_claim_dict(claim)
-            #     return redirect(url_for('main.sms_verify', verification_phone_number=member.telephone))
+            #     return redirect(url_for('main.sms_verify', verification_phone_number=member.tel))
             # else:
             #     flash('No Member Telephone Data Present. Data Not Saved.')
         else:
@@ -885,7 +885,7 @@ def member_add():
             action=form.action.data,
             address=form.address.data,
             address_additional=form.address_additional.data,
-            telephone=form.telephone.data,
+            tel=form.tel.data,
             dob=dob,
             gender=form.gender.data,
             marital_status=form.marital_status.data,
@@ -907,11 +907,11 @@ def member_add():
         member.providers.append(current_user.provider)
 
         # 2 Factor Authentication Code
-        # if form.telephone.data:
-        #     # verification_code = send_confirmation_code(form.telephone.data)
+        # if form.tel.data:
+        #     # verification_code = send_confirmation_code(form.tel.data)
         #     session['redirect_from'] = 'member'
         #     session['member'] = prepare_member_dict(member)
-        #     return redirect(url_for('main.sms_verify', verification_phone_number=form.telephone.data))
+        #     return redirect(url_for('main.sms_verify', verification_phone_number=form.tel.data))
         # else:
         #     flash('No Telephone Data Present. Data Not Saved.')
 
@@ -966,7 +966,7 @@ def member_edit(member_id):
         member.action = form.action.data
         member.address = form.address.data
         member.address_additional = form.address_additional.data
-        member.telephone = form.telephone.data
+        member.tel = form.tel.data
         member.dob = dob 
         member.gender = form.gender.data
         member.marital_status = form.marital_status.data
@@ -1008,7 +1008,7 @@ def member_edit(member_id):
         form.action.data = member.action
         form.address.data = member.address
         form.address_additional.data = member.address_additional
-        form.telephone.data = member.telephone
+        form.tel.data = member.tel
 
         if member.dob:
             form.dob.data = member.dob.strftime('%m/%d/%Y')

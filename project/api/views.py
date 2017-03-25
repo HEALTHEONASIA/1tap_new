@@ -167,7 +167,7 @@ def member_add_json():
             'action': None,
             'address': None,
             'address_additional': None,
-            'telephone': None,
+            'tel': None,
             'dob': None,
             'gender': None,
             'marital_status': None,
@@ -200,7 +200,7 @@ def member_add_json():
                                action=row['action'],
                                address=row['address'],
                                address_additional=row['address_additional'],
-                               telephone=row['telephone'],
+                               tel=row['tel'],
                                dob=datetime.strptime(row['dob'], '%m/%d/%Y'),
                                gender=row['gender'],
                                marital_status=row['marital_status'],
@@ -272,7 +272,7 @@ def member_edit_json():
         member.action = row['action']
         member.address = row['address']
         member.address_additional = row['address_additional']
-        member.telephone = row['telephone']
+        member.tel = row['tel']
         member.dob = datetime.strptime(row['dob'], '%m/%d/%Y')
         member.gender = row['gender']
         member.marital_status = row['marital_status']
