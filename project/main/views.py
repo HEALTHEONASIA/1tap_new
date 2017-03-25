@@ -480,7 +480,7 @@ def claim(claim_id):
         form.admission_date.data = claim.datetime.strftime('%d/%m/%Y')
         form.admission_time.data = claim.datetime.strftime('%I:%M %p')
         form.quotation.data = claim.amount
-        form.gender.data = claim.member.sex
+        form.gender.data = claim.member.gender
         form.patient_id.data = claim.member.client_id_number
         form.tel.data = claim.member.telephone
 
@@ -887,7 +887,7 @@ def member_add():
             address_additional=form.address_additional.data,
             telephone=form.telephone.data,
             dob=dob,
-            sex=form.sex.data,
+            gender=form.gender.data,
             marital_status=form.marital_status.data,
             start_date=start_date,
             effective_date=effective_date,
@@ -968,7 +968,7 @@ def member_edit(member_id):
         member.address_additional = form.address_additional.data
         member.telephone = form.telephone.data
         member.dob = dob 
-        member.sex = form.sex.data
+        member.gender = form.gender.data
         member.marital_status = form.marital_status.data
         member.start_date = start_date 
         member.effective_date = effective_date 
@@ -999,7 +999,7 @@ def member_edit(member_id):
     if request.method != 'POST':
         form.marital_status.default = member.marital_status
         form.patient_type.default = member.patient_type
-        form.sex.default = member.sex
+        form.gender.default = member.gender
         form.process()
 
         # fill in the form fields with the data from the database

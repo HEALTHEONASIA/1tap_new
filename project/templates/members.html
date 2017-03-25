@@ -33,7 +33,7 @@
                   <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Name: activate to sort column ascending">NAME</th>
                   <!-- <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Serial number: activate to sort column ascending">STATUS</th> -->
                   <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Date of birth: activate to sort column ascending">DATE OF BIRTH</th>
-                  <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Sex: activate to sort column ascending">SEX</th>
+                  <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Gender: activate to sort column ascending">GENDER</th>
                   <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Client policy number: activate to sort column ascending">CLIENT POLICY NR.</th>
                   <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Client ID number: activate to sort column ascending">CLIENT ID NR.</th>
                   <!-- <th class="sorting" tabindex="0" aria-controls="basicTable" rowspan="1" colspan="1" aria-label="Card number: activate to sort column ascending">CARD NUMBER</th> -->
@@ -75,7 +75,7 @@
                   </td>
                   <td class="v-align-middle">
                     <a href="{{ url_for('main.member', member_id=member.id) }}">
-                      <p>{{ member.sex }}</p>
+                      <p>{{ member.gender }}</p>
                     </a>
                   </td>
                   <td class="v-align-middle">

@@ -88,12 +88,12 @@
               </div>
             </div>
             <div class="form-group">
-              <label>{{ form.sex.label }}</label>
-              {% for error in form.sex.errors %}
+              <label>{{ form.gender.label }}</label>
+              {% for error in form.gender.errors %}
                 <span class="help" style="color: #f55753;">[{{ error }}]</span>
               {% endfor %}
               <div class="select-field-outer">
-                {{ form.sex(class_="form-control") }}
+                {{ form.gender(class_="form-control") }}
               </div>
             </div>
             <div class="form-group">

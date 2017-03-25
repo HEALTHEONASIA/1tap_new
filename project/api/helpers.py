@@ -53,7 +53,7 @@ def prepare_member_dict(member):
         'address_additional': member.address_additional,
         'telephone': member.telephone,
         'dob': member.dob.strftime('%m/%d/%Y'),
-        'sex': member.sex,
+        'gender': member.gender,
         'marital_status': member.marital_status,
         'start_date': member.start_date.strftime('%m/%d/%Y'),
         'effective_date': member.effective_date.strftime('%m/%d/%Y'),

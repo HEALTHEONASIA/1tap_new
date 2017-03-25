@@ -177,7 +177,7 @@ class MemberForm(BaseForm):
     address_additional = StringField('Address 2')
     telephone = StringField('Telephone', validators=[Required()])
     dob = StringField('Date of birth')
-    sex = SelectField('Gender', validators=[Required()],
+    gender = SelectField('Gender', validators=[Required()],
                       choices=[('male', 'Male'),
                                ('female', 'Female')])
     marital_status = SelectField('Marital status', validators=[Required()],
