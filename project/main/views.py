@@ -461,7 +461,7 @@ def claim(claim_id):
 
     form = GOPForm()
 
-    if current_user.get_type() == 'provider':
+    if current_user.get_type() == 'provider' and request.method != 'POST':
         form.payer.choices = [('0', 'None')]
         form.payer.choices += [(p.id, p.company) for p in \
                                current_user.provider.payers]
