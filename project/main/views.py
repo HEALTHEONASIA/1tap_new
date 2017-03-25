@@ -482,6 +482,7 @@ def claim(claim_id):
         form.quotation.data = claim.amount
         form.gender.data = claim.member.gender
         form.national_id.data = claim.member.national_id
+        form.current_national_id.data = claim.member.national_id
         form.tel.data = claim.member.tel
 
     if form.validate_on_submit():
@@ -496,42 +497,26 @@ def claim(claim_id):
         else:
             previously_admitted = None
 
-        filename = secure_filename(form.patient_photo.data.filename)
+        filename = secure_filename(form.member_photo.data.filename)
 
         if filename and allowed_file(filename):
             filename = str(random.randint(100000, 999999)) + filename
-            form.patient_photo.data.save(
+            form.member_photo.data.save(
                 os.path.join(config['development'].UPLOAD_FOLDER, filename))
 
         if not filename:
             filename = ''
 
-        patient = models.Patient.query.filter_by(
+        member = models.Member.query.filter_by(
             national_id=form.national_id.data).first()
 
-        if not patient:
+        if not member:
             if filename:
                 photo_filename = '/static/uploads/' + filename
             else:
                 photo_filename = '/static/img/person-solid.png'
 
-            medical_details = models.MedicalDetails(
-                symptoms=form.medical_details_symptoms.data,
-                temperature=form.medical_details_temperature.data,
-                heart_rate=form.medical_details_heart_rate.data,
-                respiration=form.medical_details_respiration.data,
-                blood_pressure=form.medical_details_blood_pressure.data,
-                physical_finding=form.medical_details_physical_finding.data,
-                health_history=form.medical_details_health_history.data,
-                previously_admitted=previously_admitted,
-                diagnosis=form.medical_details_diagnosis.data,
-                in_patient=form.medical_details_in_patient.data,
-                test_results=form.medical_details_test_results.data,
-                current_therapy=form.medical_details_current_therapy.data,
-                treatment_plan=form.medical_details_treatment_plan.data
-            )
-
-            patient = models.Patient(
+            member = models.Member(
                 name=form.name.data,
                 dob=dob,
                 gender=form.gender.data,
@@ -539,6 +524,22 @@ def claim(claim_id):
                 tel=form.tel.data,
                 photo=photo_filename,
                 policy_number=form.policy_number.data)
+
+        medical_details = models.MedicalDetails(
+            symptoms=form.medical_details_symptoms.data,
+            temperature=form.medical_details_temperature.data,
+            heart_rate=form.medical_details_heart_rate.data,
+            respiration=form.medical_details_respiration.data,
+            blood_pressure=form.medical_details_blood_pressure.data,
+            physical_finding=form.medical_details_physical_finding.data,
+            health_history=form.medical_details_health_history.data,
+            previously_admitted=previously_admitted,
+            diagnosis=form.medical_details_diagnosis.data,
+            in_patient=form.medical_details_in_patient.data,
+            test_results=form.medical_details_test_results.data,
+            current_therapy=form.medical_details_current_therapy.data,
+            treatment_plan=form.medical_details_treatment_plan.data
+        )
 
         # try to convert the values to float or, if error, convert to zero
         room_price = to_float_or_zero(form.room_price.data)
@@ -552,7 +553,7 @@ def claim(claim_id):
                 provider=current_user.provider,
                 claim=claim,
                 payer=payer,
-                patient=patient,
+                member=member,
                 patient_action_plan=form.patient_action_plan.data,
                 doctor_name=models.Doctor.query.get(int(form.doctor_name.data)).name,
                 admission_date=admission_date,

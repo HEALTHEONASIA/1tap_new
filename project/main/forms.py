@@ -4,7 +4,7 @@ from wtforms import StringField, SelectField, SubmitField, TextAreaField
 from wtforms import FileField, RadioField, HiddenField, SelectMultipleField
 from wtforms import BooleanField, PasswordField, ValidationError
 from wtforms.validators import Required, Email, Length, URL
-from ..models import Payer, Patient, User, Provider
+from ..models import Payer, Member, User, Provider
 
 
 class BaseForm(Form):
@@ -99,7 +99,7 @@ class GOPForm(BaseForm):
     patient_action_plan = TextAreaField('Plan of action',
                                         validators=[Required()])
     national_id = StringField('Patient ID', validators=[Required()])
-    patient_photo = FileField('Patient photo')
+    member_photo = FileField('Patient photo')
     medical_details_symptoms = StringField('Symptoms')
     medical_details_temperature = StringField('Temperature')
     medical_details_heart_rate = StringField('Heart rate')
@@ -156,10 +156,10 @@ class GOPForm(BaseForm):
 
     def validate_national_id(self, field):
         if field.data != self.current_national_id.data and \
-          Patient.query.filter_by(national_id=field.data).first():
+          Member.query.filter_by(national_id=field.data).first():
             raise ValidationError('Patient ID already exists.')
 
-    def validate_patient_photo(self, field):
+    def validate_member_photo(self, field):
         if field.data:
             filename = secure_filename(field.data.filename)
             allowed = ['jpg', 'jpeg', 'png', 'gif']
