@@ -302,6 +302,9 @@ def member_login():
     """Authorizes a member and returns a token"""
     json = request.get_json()
 
+    if not json:
+        return jsonify({'msg': 'missing json'})
+
     if 'email' not in json or 'password' not in json:
         return jsonify({'msg': 'missing required parameters'})
 
