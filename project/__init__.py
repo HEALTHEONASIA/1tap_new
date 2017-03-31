@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import session, g
+from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_login import current_user
@@ -15,6 +16,8 @@ login_manager.login_view = 'auth.login'
 
 def create_app(config_name):
     app = Flask(__name__)
+    cors = CORS(app, resources={r"/api/*": {"origins": 
+        "*"}})
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
