@@ -297,6 +297,81 @@ def member_edit_json():
     return jsonify(members_list)
 
 
+@api.route('/member/login', methods=['POST'])
+def member_login():
+    """Authorizes a member and returns a token"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+    user = models.User.query.filter_by(email=json['email']).first()
+
+    if user is not None and user.verify_password(json['password']):
+        return jsonify({'msg': 'success'})
+    else:
+        return jsonify({'msg': 'error'})
+
+
+@api.route('/member/register', methods=['POST'])
+def member_register():
+    """Registers a new member"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+
+@api.route('/member/logout', methods=['POST'])
+def member_logout():
+    """Deletes a member's token from a database"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+
+@api.route('/member/check-in', methods=['POST'])
+def member_check_in():
+    """Registers a member's visit to the hospital,
+    namely, adds a new claim to the system"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+
+@api.route('/member/info', methods=['GET'])
+def member_info():
+    """Returns member's info, including visits history"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+
+@api.route('/member/info/update', methods=['POST'])
+def member_info_update():
+    """Updates general member's info"""
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json = request.get_json()
+
+
+
 @api.route('/user/add/json', methods=['POST'])
 def user_add_json():
     authorized, error, user = authorize_api_key()
