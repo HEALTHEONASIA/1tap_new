@@ -300,12 +300,10 @@ def member_edit_json():
 @api.route('/member/login', methods=['POST'])
 def member_login():
     """Authorizes a member and returns a token"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
+
+    if 'email' not it json or 'password' not in json:
+        return jsonify({'msg': 'missing required parameters'})
 
     user = models.User.query.filter_by(email=json['email']).first()
 
