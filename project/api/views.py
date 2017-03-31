@@ -302,7 +302,7 @@ def member_login():
     """Authorizes a member and returns a token"""
     json = request.get_json()
 
-    if 'email' not it json or 'password' not in json:
+    if 'email' not in json or 'password' not in json:
         return jsonify({'msg': 'missing required parameters'})
 
     user = models.User.query.filter_by(email=json['email']).first()
