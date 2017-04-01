@@ -308,10 +308,34 @@ def member_login():
     if 'email' not in json or 'password' not in json:
         return jsonify({'msg': 'missing required parameters'})
 
-    user = models.User.query.filter_by(email=json['email']).first()
+    user = models.User.query.filter_by(email=json['email'],
+                                       user_type='member').first()
 
     if user is not None and user.verify_password(json['password']):
-        return jsonify({'msg': 'success'})
+        member = user.member
+
+        claims_list = []
+        for claim in member.claims:
+            claim_dict = {
+                'id': claim.id,
+                'status': claim.status,
+                'datetime': claim.datetime,
+                'amount': claim.amount
+            }
+            claims_list.append(claim_dict)
+
+        member_dict = {
+            'id': member.id,
+            'name': member.name,
+            'photo': member.photo,
+            'dob': member.dob,
+            'gender': member.gender,
+            'tel': member.tel,
+            'national_id': member.national_id,
+            'claims': claims_list
+        }
+
+        return jsonify({'msg': 'success', 'member': member_dict})
     else:
         return jsonify({'msg': 'error'})
 
