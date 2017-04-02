@@ -406,7 +406,7 @@ def member_info_update():
     member.dob = json['dob']
     member.gender = json['gender']
     member.tel = json['tel']
-    member.nationa_id = json['national_id']
+    member.national_id = json['national_id']
 
     db.session.add(member)
     db.session.commit()
