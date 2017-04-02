@@ -805,8 +805,9 @@ def claim_add_by_terminal():
     claim_dict = {
         'id': claim.id,
         'status': claim.status,
-        'datetime': claim.datetime,
-        'amount': claim.amount
+        'datetime': claim.datetime.strftime('%d/%m/%Y %I:%M %p'),
+        'amount': claim.amount,
+        'company': claim.provider.company
     }
 
     # returns successful json
