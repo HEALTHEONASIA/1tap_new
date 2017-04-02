@@ -665,6 +665,36 @@ def terminal_edit_json():
     return jsonify(terminals_list)
 
 
+@api.route('/terminal/add', methods=['POST'])
+def terminal_add():
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json_ = request.get_json()
+
+    # find the terminal with the given device uid
+    terminal = models.Terminal.query.filter_by(device_uid=json_['uid']).first()
+
+    # if no terminal is found, it is a new terminal and we add it
+    if not terminal:
+        terminal = models.Terminal(device_uid=json_['uid'],
+                                   provider_id=user.provider.id)
+        db.session.add(terminal)
+        db.session.commit()
+    elif terminal not in user.provider.terminals:
+        user.provider.terminals.append(terminal)
+        db.session.add(user.provider)
+        db.session.commit()
+
+    # returns the url on the current terminal's edit page
+    # it will redirect the user of the 1TAP desktop app to this page
+    return jsonify({
+        'redirect_url': 'https://1tapsystem.com/terminal/%d/edit' % terminal.id
+    })
+
+
 @api.route('/claim/add', methods=['POST'])
 def claim_add():
     authorized, error, user = authorize_api_key()
@@ -687,16 +717,6 @@ def claim_add():
         member.providers.append(user.provider)
         db.session.add(member)
         db.session.commit()
-
-    # create a new GOP request in the Medipay system
-    querystring = {"api_key": user.api_key}
-
-    # request headers, it's important to set
-    # the content-type to the 'application/json'
-    headers = {
-        'content-type': "application/json",
-        'cache-control': "no-cache",
-    }
 
     # add new claim
     claim = models.Claim(datetime=datetime.now(),
