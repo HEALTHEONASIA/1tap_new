@@ -421,7 +421,9 @@ def member_info_update():
         with open(filepath, "wb+") as fh:
             fh.write(base64photo.decode('base64'))
 
-        member.photo = filepath
+        filename = '/static/uploads/' + filename
+
+        member.photo = filename
 
     try:
         member.dob = datetime.strptime(json['dob'], '%Y-%m-%d')
