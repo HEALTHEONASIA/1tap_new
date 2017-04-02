@@ -316,19 +316,28 @@ def member_login():
 
         claims_list = []
         for claim in member.claims:
+            if claim.datetime:
+                claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
+            else
+                claim_datetime = None
             claim_dict = {
                 'id': claim.id,
                 'status': claim.status,
-                'datetime': claim.datetime.strftime('%d/%m/%Y %I:%M %p'),
+                'datetime': claim_datetime,
                 'amount': claim.amount
             }
             claims_list.append(claim_dict)
+
+        if member.dob:
+            member_dob = member.dob.strftime('%d/%m/%Y')
+        else:
+            member_dob = None
 
         member_dict = {
             'id': member.id,
             'name': member.name,
             'photo': member.photo,
-            'dob': member.dob.strftime('%d/%m/%Y'),
+            'dob': member_dob,
             'gender': member.gender,
             'tel': member.tel,
             'national_id': member.national_id,
@@ -416,19 +425,28 @@ def member_info_update():
 
     claims_list = []
     for claim in member.claims:
+        if claim.datetime:
+            claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
+        else
+            claim_datetime = None
         claim_dict = {
             'id': claim.id,
             'status': claim.status,
-            'datetime': claim.datetime.strftime('%d/%m/%Y %I:%M %p'),
+            'datetime': claim_datetime,
             'amount': claim.amount
         }
         claims_list.append(claim_dict)
+
+    if member.dob:
+        member_dob = member.dob.strftime('%d/%m/%Y')
+    else:
+        member_dob = None
 
     member_dict = {
         'id': member.id,
         'name': member.name,
         'photo': member.photo,
-        'dob': member.dob.strftime('%d/%m/%Y'),
+        'dob': member_dob,
         'gender': member.gender,
         'tel': member.tel,
         'national_id': member.national_id,
