@@ -374,7 +374,7 @@ def terminal_edit(terminal_id):
 
     # retreive the current user's terminal by its ID
     if current_user.get_type() == 'provider':
-        terminal = current_user.terminals.filter_by(id=terminal_id).first()
+        terminal = current_user.provider.terminals.filter_by(id=terminal_id).first()
 
     if current_user.get_role() == 'admin':
         terminal = models.Terminal.query.get(terminal_id)
@@ -390,7 +390,7 @@ def terminal_edit(terminal_id):
         terminal.model = form.model.data
         terminal.location = form.location.data
         terminal.version = form.version.data
-        terminal.remarks = form.remarks.data 
+        terminal.remarks = form.remarks.data
 
         # commit the database changes
         db.session.add(terminal)
