@@ -769,7 +769,7 @@ def claim_add_by_terminal():
     json = request.get_json()
 
     if 'user_id' not in json or 'terminal_uid' not in json:
-        return jsonify({'msg': 'error: not enough parameters'})
+        return jsonify({'msg': 'Not enough parameters'})
 
     # find the member with the given id
     member = models.Member.query.filter_by(id=json['user_id']).first()
@@ -778,9 +778,11 @@ def claim_add_by_terminal():
     terminal = models.Terminal.query.filter_by(
                     device_uid=json['terminal_uid']).first()
 
-    # if there is no member or terminal, do nothing
-    if not member or not terminal:
-        return jsonify({'msg': 'error'})
+    if not member:
+        return jsonify({'msg': 'No such member'})
+
+    if not terminal:
+        return jsonify({'msg': 'No such terminal'})
 
     provider = terminal.provider
 
