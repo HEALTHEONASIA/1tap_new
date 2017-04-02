@@ -677,7 +677,7 @@ def claim_add():
 
 @api.route('/claim/add-by-terminal', methods=['POST'])
 def claim_add_by_terminal():
-    json_ = request.get_json()
+    json = request.get_json()
 
     if 'user_id' not in json or 'terminal_uid' not in json:
         return jsonify({'msg': 'error: not enough parameters'})
