@@ -1,4 +1,4 @@
-import json, re, requests, random
+import os, json, re, requests, random
 
 from datetime import datetime
 from flask import jsonify, request, render_template
