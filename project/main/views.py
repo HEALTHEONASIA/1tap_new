@@ -108,7 +108,8 @@ def index():
     if current_user.get_type() == 'provider':
         providers = []
         members = current_user.provider.members.all()
-        claims_query = current_user.provider.claims.filter(models.Claim.id != False)
+        claims_query = current_user.provider.claims.order_by(
+            desc(models.Claim.datetime)).filter(models.Claim.id != False)
         claims = claims_query.all()
 
     if current_user.get_type() == 'payer':
@@ -117,7 +118,8 @@ def index():
             .filter(models.Claim.id.in_(claim_ids)).all()
         members = models.Member.query.join(models.Claim, models.Member.claims)\
             .filter(models.Claim.id.in_(claim_ids)).all()
-        claims_query = models.Claim.query.filter(models.Claim.id.in_(claim_ids))
+        claims_query = models.Claim.query.order_by(
+            desc(models.Claim.datetime)).filter(models.Claim.id.in_(claim_ids))
         claims = claims_query.all()
 
     if current_user.get_role() == 'admin':
@@ -125,7 +127,8 @@ def index():
         members = models.Member.query.all()
         # filtering to get the query object, rather than objects list
         # it needs to make apply a pagination on that query object
-        claims_query = models.Claim.query.filter(models.Claim.id != False)
+        claims_query = models.Claim.query.order_by(
+            desc(models.Claim.datetime)).filter(models.Claim.id != False)
         claims = claims_query.all()
 
     total_claims = len(claims)
