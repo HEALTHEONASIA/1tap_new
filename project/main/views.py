@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 from flask import flash, render_template, redirect, request, url_for
 from flask import jsonify, send_from_directory, session
 from flask_login import current_user, login_user
+from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 from flask_mail import Message
 
@@ -416,14 +417,17 @@ def terminal_edit(terminal_id):
 @login_required()
 def claims():
     if current_user.get_type() == 'provider':
-        claims = current_user.provider.claims.filter(models.Claim.id != False)
+        claims = current_user.provider.claims\
+            .order_by(desc(models.Claim.datetime)).filter(models.Claim.id != False)
 
     if current_user.get_type() == 'payer':
         claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
-        claims = models.Claim.query.filter(models.Claim.id.in_(claim_ids))
+        claims = models.Claim.query.order_by(desc(models.Claim.datetime)).filter(
+            models.Claim.id.in_(claim_ids))
 
     if current_user.get_role() == 'admin':
-        claims = models.Claim.query.filter(models.Claim.id != False)
+        claims = models.Claim.query.order_by(desc(models.Claim.datetime))\
+            .filter(models.Claim.id != False)
 
     # pagination
     pagination = claims.paginate(per_page=10)
