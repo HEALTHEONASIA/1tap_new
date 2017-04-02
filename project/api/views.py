@@ -403,7 +403,10 @@ def member_info_update():
 
     member.name = json['name']
     member.photo = json['photo']
-    member.dob = json['dob']
+    try:
+        member.dob = datetime.strptime(json['dob'], '%m/%d/%Y')
+    except:
+        member.dob = None
     member.gender = json['gender']
     member.tel = json['tel']
     member.national_id = json['national_id']
