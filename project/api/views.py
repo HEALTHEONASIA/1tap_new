@@ -675,6 +675,53 @@ def claim_add():
     })
 
 
+@api.route('/claim/add-by-terminal', methods=['POST'])
+def claim_add_by_terminal():
+    json_ = request.get_json()
+
+    if 'user_id' not in json or 'terminal_uid' not in json:
+        return jsonify({'msg': 'error: not enough parameters'})
+
+    # find the member with the given id
+    member = models.Member.query.filter_by(id=json_['user_id']).first()
+
+    # find the terminal with the given device_uid
+    terminal = models.Terminal.query.filter_by(
+                    device_uid=json['terminal_uid']).first()
+
+    # if there is no member or terminal, do nothing
+    if not member or not terminal:
+        return jsonify({'msg': 'error'})
+
+    provider = terminal.provider
+
+    # if it's the first visit to the hospital,
+    # add the provider to member's providers list
+    if provider not in member.providers:
+        member.providers.append(provider)
+        db.session.add(member)
+        db.session.commit()
+
+    # add new claim
+    claim = models.Claim(datetime=datetime.now(),
+                         provider_id=user.provider.id,
+                         terinal_id=terminal.id,
+                         member_id=member.id)
+
+    db.session.add(claim)
+    db.session.commit()
+
+    claim_dict = {
+        'id': claim.id,
+        'status': claim.status,
+        'datetime': claim.datetime,
+        'amount': claim.amount
+    }
+
+    # returns successful json
+    return jsonify({'msg': 'success', 'claim': claim})
+
+
 @api.route('/claim/add/json', methods=['POST'])
 def claim_add_json():
     authorized, error, user = authorize_api_key()
