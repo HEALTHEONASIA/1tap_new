@@ -367,7 +367,7 @@ def member_register():
         return jsonify({'msg': 'user already exists'})
     else:
         member = models.Member()
-        user = models.User(email=json['email'], password=json['json'],
+        user = models.User(email=json['email'], password=json['password'],
                            user_type='member', member=member)
         db.session.add(user)
         db.session.commit()
