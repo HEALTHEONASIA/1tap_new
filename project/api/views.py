@@ -352,40 +352,32 @@ def member_login():
 @api.route('/member/register', methods=['POST'])
 def member_register():
     """Registers a new member"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
+
+    if not json:
+        return jsonify({'msg': 'missing json'})
+
+    if 'email' not in json or 'password' not in json:
+        return jsonify({'msg': 'missing required parameters'})
+
+    user = models.User.query.filter_by(email=json['email']).first()
+
+    # is user with such email exists, reuturn an error
+    if user:
+        return jsonify({'msg': 'user already exists'})
+    else:
+        member = models.Member()
+        user = models.User(email=json['email'], password=json['json'],
+                           user_type='member', member=member)
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({'msg': 'success'})
 
 
 @api.route('/member/logout', methods=['POST'])
 def member_logout():
     """Deletes a member's token from a database"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
-    json = request.get_json()
-
-
-@api.route('/member/check-in', methods=['POST'])
-def member_check_in():
-    """Registers a member's visit to the hospital,
-    namely, adds a new claim to the system"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
-    json = request.get_json()
-
-
-@api.route('/member/info', methods=['GET'])
-def member_info():
-    """Returns member's info, including visits history"""
     authorized, error, user = authorize_api_key()
 
     if not authorized:
