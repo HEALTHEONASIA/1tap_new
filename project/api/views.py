@@ -358,16 +358,16 @@ def member_register():
     json = request.get_json()
 
     if not json:
-        return jsonify({'msg': 'missing json'})
+        return jsonify({'msg': 'Missing json'})
 
     if 'email' not in json or 'password' not in json:
-        return jsonify({'msg': 'missing required parameters'})
+        return jsonify({'msg': 'Missing required parameters'})
 
     user = models.User.query.filter_by(email=json['email']).first()
 
     # is user with such email exists, reuturn an error
     if user:
-        return jsonify({'msg': 'user already exists'})
+        return jsonify({'msg': 'User already exists'})
     else:
         member = models.Member()
         user = models.User(email=json['email'], password=json['password'],
