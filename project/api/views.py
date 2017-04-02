@@ -683,7 +683,7 @@ def claim_add_by_terminal():
         return jsonify({'msg': 'error: not enough parameters'})
 
     # find the member with the given id
-    member = models.Member.query.filter_by(id=json_['user_id']).first()
+    member = models.Member.query.filter_by(id=json['user_id']).first()
 
     # find the terminal with the given device_uid
     terminal = models.Terminal.query.filter_by(
