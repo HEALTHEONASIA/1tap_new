@@ -388,13 +388,51 @@ def member_info():
 @api.route('/member/info/update', methods=['POST'])
 def member_info_update():
     """Updates general member's info"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
+    if not json:
+        return jsonify({'msg': 'missing json'})
+
+    if 'id' not in json:
+        return jsonify({'msg': 'missing member_id'})
+
+    member = models.Member.query.get(json['id'])
+
+    if not member:
+        return jsonify({'msg': 'no such member'})
+
+    member.name = json['name']
+    member.photo = json['photo']
+    member.dob = json['dob']
+    member.gender = json['gender']
+    member.tel = json['tel']
+    member.nationa_id = json['national_id']
+
+    db.session.add(member)
+    db.session.commit()
+
+    claims_list = []
+    for claim in member.claims:
+        claim_dict = {
+            'id': claim.id,
+            'status': claim.status,
+            'datetime': claim.datetime,
+            'amount': claim.amount
+        }
+        claims_list.append(claim_dict)
+
+    member_dict = {
+        'id': member.id,
+        'name': member.name,
+        'photo': member.photo,
+        'dob': member.dob,
+        'gender': member.gender,
+        'tel': member.tel,
+        'national_id': member.national_id,
+        'claims': claims_list
+    }
+
+    return jsonify({'msg': 'success', 'member': member_dict})
 
 
 @api.route('/user/add/json', methods=['POST'])
