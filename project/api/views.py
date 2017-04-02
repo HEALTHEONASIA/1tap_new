@@ -319,7 +319,7 @@ def member_login():
             claim_dict = {
                 'id': claim.id,
                 'status': claim.status,
-                'datetime': claim.datetime,
+                'datetime': claim.datetime.strftime('%d/%m/%Y %I:%M %p'),
                 'amount': claim.amount
             }
             claims_list.append(claim_dict)
@@ -328,7 +328,7 @@ def member_login():
             'id': member.id,
             'name': member.name,
             'photo': member.photo,
-            'dob': member.dob,
+            'dob': member.dob.strftime('%d/%m/%Y'),
             'gender': member.gender,
             'tel': member.tel,
             'national_id': member.national_id,
@@ -419,7 +419,7 @@ def member_info_update():
         claim_dict = {
             'id': claim.id,
             'status': claim.status,
-            'datetime': claim.datetime,
+            'datetime': claim.datetime.strftime('%d/%m/%Y %I:%M %p'),
             'amount': claim.amount
         }
         claims_list.append(claim_dict)
@@ -428,7 +428,7 @@ def member_info_update():
         'id': member.id,
         'name': member.name,
         'photo': member.photo,
-        'dob': member.dob,
+        'dob': member.dob.strftime('%d/%m/%Y'),
         'gender': member.gender,
         'tel': member.tel,
         'national_id': member.national_id,
