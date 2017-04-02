@@ -719,7 +719,7 @@ def claim_add_by_terminal():
     }
 
     # returns successful json
-    return jsonify({'msg': 'success', 'claim': claim})
+    return jsonify({'msg': 'success', 'claim': claim_dict})
 
 
 @api.route('/claim/add/json', methods=['POST'])
