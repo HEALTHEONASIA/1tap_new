@@ -482,7 +482,8 @@ def claim(claim_id):
 
     if current_user.get_type() == 'provider' and request.method != 'POST':
         form.name.data = claim.member.name
-        form.dob.data = claim.member.dob.strftime('%d/%m/%Y')
+        if claim.member.dob:
+            form.dob.data = claim.member.dob.strftime('%d/%m/%Y')
         form.policy_number.data = claim.member.policy_number
         form.admission_date.data = claim.datetime.strftime('%d/%m/%Y')
         form.admission_time.data = claim.datetime.strftime('%I:%M %p')
