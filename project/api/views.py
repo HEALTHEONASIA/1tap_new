@@ -349,7 +349,7 @@ def member_login():
 
         return jsonify({'msg': 'success', 'member': member_dict})
     else:
-        return jsonify({'msg': 'error'})
+        return jsonify({'msg': 'Wrong email or password'})
 
 
 @api.route('/member/register', methods=['POST'])
