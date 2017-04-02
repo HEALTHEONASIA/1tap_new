@@ -1,11 +1,11 @@
-import json, re, requests
+import json, re, requests, random
 
 from datetime import datetime
 from flask import jsonify, request, render_template
 
 from .helpers import *
 from . import api
-from .. import db, models
+from .. import db, models, config
 
 
 @api.route('/members', methods=['GET'])
@@ -329,7 +329,7 @@ def member_login():
             claims_list.append(claim_dict)
 
         if member.dob:
-            member_dob = member.dob.strftime('%d/%m/%Y')
+            member_dob = member.dob.strftime('%Y-%m-%d')
         else:
             member_dob = None
 
@@ -411,7 +411,18 @@ def member_info_update():
         return jsonify({'msg': 'no such member'})
 
     member.name = json['name']
-    member.photo = json['photo']
+
+    if member.photo != json['photo']:
+        base64photo = json['photo'].replace('data:image/jpeg;base64,', '')
+
+        filename = str(random.randint(100000, 999999)) + member.id + '.jpg'
+        filepath = os.path.join(config['development'].UPLOAD_FOLDER, filename)
+
+        with open(filepath, "wb+") as fh:
+            fh.write(base64photo.decode('base64'))
+
+        member.photo = filepath
+
     try:
         member.dob = datetime.strptime(json['dob'], '%Y-%m-%d')
     except:
@@ -438,7 +449,7 @@ def member_info_update():
         claims_list.append(claim_dict)
 
     if member.dob:
-        member_dob = member.dob.strftime('%d/%m/%Y')
+        member_dob = member.dob.strftime('%Y-%m-%d')
     else:
         member_dob = None
 
