@@ -2,6 +2,7 @@ import os, json, re, requests, random
 
 from datetime import datetime
 from flask import jsonify, request, render_template
+from sqlalchemy import desc
 
 from .helpers import *
 from . import api
@@ -315,7 +316,8 @@ def member_login():
         member = user.member
 
         claims_list = []
-        for claim in member.claims:
+        claims = member.claims.order_by(desc(models.Claim.datetime))
+        for claim in claims:
             if claim.datetime:
                 claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
             else:
@@ -430,7 +432,8 @@ def member_info_update():
     db.session.commit()
 
     claims_list = []
-    for claim in member.claims:
+    claims = member.claims.order_by(desc(models.Claim.datetime))
+    for claim in claims:
         if claim.datetime:
             claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
         else:
