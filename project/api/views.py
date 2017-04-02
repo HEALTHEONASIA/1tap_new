@@ -324,7 +324,8 @@ def member_login():
                 'id': claim.id,
                 'status': claim.status,
                 'datetime': claim_datetime,
-                'amount': claim.amount
+                'amount': claim.amount,
+                'company': claim.provider.company
             }
             claims_list.append(claim_dict)
 
@@ -438,7 +439,8 @@ def member_info_update():
             'id': claim.id,
             'status': claim.status,
             'datetime': claim_datetime,
-            'amount': claim.amount
+            'amount': claim.amount,
+            'company': claim.provider.company
         }
         claims_list.append(claim_dict)
 
