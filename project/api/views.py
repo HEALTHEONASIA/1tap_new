@@ -318,7 +318,7 @@ def member_login():
         for claim in member.claims:
             if claim.datetime:
                 claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
-            else
+            else:
                 claim_datetime = None
             claim_dict = {
                 'id': claim.id,
@@ -427,7 +427,7 @@ def member_info_update():
     for claim in member.claims:
         if claim.datetime:
             claim_datetime = claim.datetime.strftime('%d/%m/%Y %I:%M %p')
-        else
+        else:
             claim_datetime = None
         claim_dict = {
             'id': claim.id,
