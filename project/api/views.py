@@ -726,7 +726,7 @@ def terminal_add():
     })
 
 
-@api.route('/claim/check-new', methods=['POST'])
+@api.route('/claim/check-new', methods=['GET'])
 def claim_check_new():
     authorized, error, user = authorize_api_key()
 
