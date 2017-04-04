@@ -819,7 +819,8 @@ def claim_add_by_terminal():
     claim = models.Claim(datetime=datetime.now(),
                          provider_id=provider.id,
                          terminal_id=terminal.id,
-                         member_id=member.id)
+                         member_id=member.id,
+                         new_claim=1)
 
     db.session.add(claim)
     db.session.commit()
