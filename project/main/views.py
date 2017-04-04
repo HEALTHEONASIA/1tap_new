@@ -466,6 +466,11 @@ def claim(claim_id):
     if current_user.get_role() == 'admin':
         claim = models.Claim.query.get(claim_id)
 
+    if claim.new_claim:
+        claim.new_claim = 0
+        db.session.add(claim)
+        db.session.commit()
+
     form = GOPForm()
 
     form.payer.choices = [('0', 'None')]

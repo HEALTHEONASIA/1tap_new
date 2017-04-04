@@ -726,6 +726,28 @@ def terminal_add():
     })
 
 
+@api.route('/claim/check-new', methods=['POST'])
+def claim_check_new():
+    authorized, error, user = authorize_api_key()
+
+    if not authorized:
+        return error
+
+    json_ = request.get_json()
+
+    claims = models.Claim.query.filter_by(new_claim=1).all()
+
+    claims_urls = []
+    for claim in claims:
+        claims_urls.append({'redirect_url': 'https://1tapsystem.com/claim/%d' % claim.id})
+        claim.new_claim = 0
+        db.session.add(claim)
+
+    db.session.commit()
+
+    return jsonify(claims_urls)
+
+
 @api.route('/claim/add', methods=['POST'])
 def claim_add():
     authorized, error, user = authorize_api_key()
@@ -759,9 +781,9 @@ def claim_add():
 
     # returns the url on the current claim's edit page
     # it will redirect the user of the 1TAP desktop app to this page
-    return jsonify({
+    return jsonify([{
         'redirect_url': 'https://1tapsystem.com/claim/%d' % claim.id
-    })
+    }])
 
 
 @api.route('/claim/add-by-terminal', methods=['POST'])
