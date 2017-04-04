@@ -113,7 +113,7 @@ def index():
         claims = claims_query.all()
 
     if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
+        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
         providers = models.Provider.query.join(models.Claim, models.Provider.claims)\
             .filter(models.Claim.id.in_(claim_ids)).all()
         members = models.Member.query.join(models.Claim, models.Member.claims)\
@@ -424,7 +424,7 @@ def claims():
             .order_by(desc(models.Claim.datetime)).filter(models.Claim.id != False)
 
     if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
+        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
         claims = models.Claim.query.order_by(desc(models.Claim.datetime)).filter(
             models.Claim.id.in_(claim_ids))
 
