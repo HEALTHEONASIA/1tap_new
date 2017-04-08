@@ -1,8 +1,9 @@
-import re
+import datetime, re
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SubmitField, TextAreaField
 from wtforms import FileField, RadioField, HiddenField, SelectMultipleField
-from wtforms import BooleanField, PasswordField, ValidationError
+from wtforms import BooleanField, PasswordField, ValidationError, DateField
+from wtforms import DateTimeField
 from wtforms.validators import Required, Email, Length, URL
 from ..models import Payer, Member, User, Provider
 
@@ -55,7 +56,6 @@ def validate_dropdown(form, field):
         if field.data == -1:
             raise ValidationError('Please select an Option From The DropDown.')
 
-
 class TerminalForm(BaseForm):
     status = StringField('Status', validators=[Required()])
     serial_number = StringField('Serial number', validators=[Required()])
@@ -72,13 +72,18 @@ class ClaimForm(BaseForm):
     amount = StringField('Amount', validators=[Required()])
     claim_number = StringField('Claims Number')
     claim_type = StringField('Claims Type')
-    date = StringField('Date')
-    time = StringField('Time')
+    datetime = DateField('Hidden datetime') # don't show this field in form
+    date = DateField('Date', format='%d/%m/%Y')
+    time = DateTimeField('Time', format='%I:%M %p')
     admitted = BooleanField('Admitted')
     discharged = BooleanField('Discharged')
     member_id = SelectField('Member', validators=[validate_dropdown], coerce=int)
     terminal_id = SelectField('Terminal', validators=[validate_dropdown], coerce=int)
     submit = SubmitField('Save')
+
+    def validate_datetime(self, field):
+        field.data = datetime.datetime.combine(self.date.data,
+                                               self.time.data.time())
 
 
 class GOPForm(BaseForm):

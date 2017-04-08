@@ -10,6 +10,7 @@ from sqlalchemy import desc
 from werkzeug.utils import secure_filename
 from flask_mail import Message
 
+from .services import MedicalDetailsService
 from .forms import ClaimForm, MemberForm, TerminalForm, GOPForm
 from .forms import SMSVerificationForm
 from .twillo_2_factor_authentication import send_confirmation_code
@@ -18,6 +19,8 @@ from ..api.helpers import prepare_claim_dict, prepare_member_dict
 from . import main
 from .. import config, db, models, mail
 from ..models import monthdelta, login_required
+
+medical_details_service = MedicalDetailsService()
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -674,15 +677,12 @@ def claim_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        claim_date_time = datetime_set_to_current_date_on_failure(
-                                    form.date.data + ' ' + form.time.data)
-
         claim = models.Claim(
             status=form.status.data,
             amount=form.amount.data,
             claim_number=form.claim_number.data,
             claim_type=form.claim_type.data,
-            datetime=claim_date_time,
+            datetime=form.datetime.data,
             provider_id=current_user.provider.id,
             member_id=form.member_id.data,
             terminal_id=form.terminal_id.data)
@@ -755,16 +755,11 @@ def claim_edit(claim_id):
 
     # if the form was sent
     if form.validate_on_submit():
-
-        # update the database with the data from the form fields
-        claim_date_time = datetime_set_to_current_date_on_failure(
-                                form.date.data + ' ' + form.time.data)
-
         claim.status = form.status.data
         claim.amount = form.amount.data
         claim.claim_number = form.claim_number.data
         claim.claim_type = form.claim_type.data
-        claim.datetime = claim_date_time
+        claim.datetime = form.datetime.data
         claim.member_id = form.member_id.data
         claim.terminal_id = form.terminal_id.data
 
@@ -782,8 +777,8 @@ def claim_edit(claim_id):
         form.amount.data = claim.amount
         form.claim_number.data = claim.claim_number
         form.claim_type.data = claim.claim_type
-        form.date.data = claim.datetime.strftime('%m/%d/%Y')
-        form.time.data = claim.datetime.strftime('%I:%M %p')
+        form.date.data = claim.datetime
+        form.time.data = claim.datetime
         form.member_id.data  = claim.member_id
         form.terminal_id.data = claim.terminal_id
 

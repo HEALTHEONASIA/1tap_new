@@ -38,10 +38,11 @@ def to_float_or_zero(value):
     return value
 
 class ColsMapMixin(object):
-    def columns(self):
+    @classmethod
+    def columns(cls):
         """Return the actual columns of a SQLAlchemy-mapped object"""
         return [prop.key for prop in \
-            class_mapper(self.__class__).iterate_properties \
+            class_mapper(cls).iterate_properties \
             if isinstance(prop, ColumnProperty)]
 
 
@@ -442,7 +443,7 @@ class GuaranteeOfPayment(db.Model):
         return output
 
 
-class MedicalDetails(db.Model):
+class MedicalDetails(ColsMapMixin, db.Model):
     __tablename__ = 'medical_details'
     id = db.Column(db.Integer, primary_key=True)
     gop_id = db.Column(db.Integer, db.ForeignKey('guarantee_of_payment.id'))
