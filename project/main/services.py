@@ -7,12 +7,15 @@ class ExtFuncsMixin(object):
     def __init__(self):
         self.columns = self.__model__.columns()
 
-    @staticmethod
-    def update_from_form(model, form, exclude=[]):
+    def update_from_form(self, model, form, exclude=[]):
         # fill the models data from the form
         for col in model.columns():
             if col not in exclude and hasattr(form, col):
                 setattr(model, col, getattr(form, col).data)
+
+        self.__db__.session.add(model)
+        self.__db__.session.commit()
+
 
 
 class MedicalDetailsService(ExtFuncsMixin, SQLAlchemyService):

@@ -336,12 +336,10 @@ def terminal_add():
     # if the form was sent
     if form.validate_on_submit():
         terminal = models.Terminal()
-        terminal_service.update_from_form(terminal, form)
         terminal.provider_id = current_user.provider.id
 
-        # commit the database changes
-        db.session.add(terminal)
-        db.session.commit()
+        terminal_service.update_from_form(terminal, form)
+
         flash('The terminal has been added')
         return redirect(url_for('main.terminals'))
 
@@ -368,9 +366,6 @@ def terminal_edit(terminal_id):
     if form.validate_on_submit():
         terminal_service.update_from_form(terminal, form)
 
-        # commit the database changes
-        db.session.add(terminal)
-        db.session.commit()
         flash('Data has been updated.')
 
      # if the form was just opened
@@ -470,9 +465,10 @@ def claim(claim_id):
 
         if not member:
             member = models.Member()
+            member.photo = photo_filename
+
             member_service.update_from_form(member, form,
                                             exclude=['member_photo'])
-            member.photo = photo_filename
 
         medical_details = medical_details_service.create(
             **{field.name.replace('medical_details_', ''): field.data \
@@ -485,8 +481,6 @@ def claim(claim_id):
         gop = models.GuaranteeOfPayment()
         exclude = ['doctor_name', 'status']
 
-        gop_service.update_from_form(gop, form, exclude=exclude)
-
         gop.claim = claim
         gop.payer = payer
         gop.member = member
@@ -498,10 +492,9 @@ def claim(claim_id):
         for icd_code_id in form.icd_codes.data:
             icd_code = models.ICDCode.query.get(int(icd_code_id))
             gop.icd_codes.append(icd_code)
-        
-        db.session.add(gop)
-        db.session.commit()
-        
+
+        gop_service.update_from_form(gop, form, exclude=exclude)
+
         # initializing user and random password 
         user = None
         rand_pass = None
@@ -585,8 +578,8 @@ def claim_add():
     # if the form was sent
     if form.validate_on_submit():
         claim = models.Claim()
-        claim_service.update_from_form(claim, form)
         claim.provider_id = current_user.provider.id
+        claim_service.update_from_form(claim, form)
         
         member = models.Member.query.get(form.member_id.data)
 
@@ -602,10 +595,6 @@ def claim_add():
             #     flash('No Member Telephone Data Present. Data Not Saved.')
         else:
             flash('No member data present. Data not saved')
-
-        # commit the database changes
-        db.session.add(claim)
-        db.session.commit()
 
         flash('The claim has been added.')
 
@@ -659,10 +648,6 @@ def claim_edit(claim_id):
     # if the form was sent
     if form.validate_on_submit():
         claim_service.update_from_form(claim, form)
-
-        # commit the database changes
-        db.session.add(claim)
-        db.session.commit()
 
         flash('Data has been updated')
 
@@ -760,9 +745,6 @@ def member_add():
         # initialize an empty mebmer object
         member = models.Member()
 
-        # save the form data to the object
-        member_service.update_from_form(member, form, exclude=['photo'])
-
         # update the photo
         photo_filename = photo_file_name_santizer(form.photo)
         member.photo = photo_filename
@@ -770,6 +752,9 @@ def member_add():
         # append the patient to the provider
         # by which the patient has been created
         member.providers.append(current_user.provider)
+
+        # save the form data to the object
+        member_service.update_from_form(member, form, exclude=['photo'])
 
         # 2 Factor Authentication Code
         # if form.tel.data:
@@ -779,10 +764,6 @@ def member_add():
         #     return redirect(url_for('main.sms_verify', verification_phone_number=form.tel.data))
         # else:
         #     flash('No Telephone Data Present. Data Not Saved.')
-
-        # commit the database changes
-        db.session.add(member)
-        db.session.commit()
 
         return redirect(url_for('main.members'))
 
@@ -809,14 +790,10 @@ def member_edit(member_id):
     form = MemberForm()
 
     if form.validate_on_submit():
-        member_service.update_from_form(member, form, exclude=['photo'])
-
         if form.photo.data:
             member.photo = photo_file_name_santizer(form.photo)
 
-        # commit the database changes
-        db.session.add(member)
-        db.session.commit()
+        member_service.update_from_form(member, form, exclude=['photo'])
 
         return redirect(url_for('main.member', member_id=member.id))
 
