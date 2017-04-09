@@ -95,7 +95,6 @@ def index():
         members = current_user.provider.members.all()
         claims_query = current_user.provider.claims.order_by(
             desc(models.Claim.datetime)).filter(models.Claim.id != False)
-        claims = claims_query.all()
 
     if current_user.get_type() == 'payer':
         claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
@@ -105,7 +104,6 @@ def index():
             .filter(models.Claim.id.in_(claim_ids)).all()
         claims_query = models.Claim.query.order_by(
             desc(models.Claim.datetime)).filter(models.Claim.id.in_(claim_ids))
-        claims = claims_query.all()
 
     if current_user.get_role() == 'admin':
         providers = models.Provider.query.all()
@@ -114,8 +112,8 @@ def index():
         # it needs to make apply a pagination on that query object
         claims_query = models.Claim.query.order_by(
             desc(models.Claim.datetime)).filter(models.Claim.id != False)
-        claims = claims_query.all()
 
+    claims = claims_query.all()
     total_claims = len(claims)
 
     # get the claims in the given month ranges
