@@ -467,6 +467,8 @@ def claim(claim_id):
         form.current_national_id.data = claim.member.national_id
         form.tel.data = claim.member.tel
 
+        form.medical_details_previously_admitted.data = datetime.now()
+
     if form.validate_on_submit():
         filename = photo_file_name_santizer(form.member_photo)
 
@@ -484,13 +486,6 @@ def claim(claim_id):
                for field in form \
                if field.name.replace('medical_details_', '') \
                in medical_details_service.columns})
-
-        # try to convert the values to float or, if error, convert to zero
-        room_price = to_float_or_zero(form.room_price.data)
-        doctor_fee = to_float_or_zero(form.doctor_fee.data)
-        surgery_fee = to_float_or_zero(form.surgery_fee.data)
-        medication_fee = to_float_or_zero(form.medication_fee.data)
-        quotation = to_float_or_zero(form.quotation.data)
 
         payer = models.Payer.query.get(form.payer.data)
 

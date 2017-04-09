@@ -120,8 +120,7 @@ class GOPForm(BaseForm):
     medical_details_physical_finding = StringField('Physical finding')
     medical_details_health_history = TextAreaField('Health history')
     medical_details_previously_admitted = DateField('Previously admitted',
-                                                    format='%d/%m/%Y',
-                                                    default=None)
+                                                    format='%d/%m/%Y')
     medical_details_diagnosis = StringField('Diagnosis')
     medical_details_in_patient = BooleanField('In patient indication')
     medical_details_test_results = TextAreaField('Test results')
