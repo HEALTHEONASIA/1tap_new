@@ -17,6 +17,7 @@ from .forms import SMSVerificationForm
 from .twillo_2_factor_authentication import send_confirmation_code
 from ..api.helpers import convert_dict_claim_model, convert_dict_member_model
 from ..api.helpers import prepare_claim_dict, prepare_member_dict
+
 from . import main
 from .. import config, db, models, mail
 from ..models import monthdelta, login_required
@@ -62,25 +63,13 @@ def safe_div(dividend, divisor):
 def percent_of(part, total):
     return safe_div(float(part), float(total)) * 100
 
-def in_patients_for(claims):
+def patients_amount(claims, _type):
     """Returns the in-patients for the given claims."""
     result = []
 
     for claim in claims:
-        if claim.member.patient_type == 'In':
+        if claim.member.patient_type == _type:
             result.append(claim.member.id)
-
-    result = list(set(result))
-
-    return result
-
-def out_patients_for(claims):
-    """Returns the out-patients for the given claims."""
-    result = []
-
-    for claim in claims:
-        if claim.member.patient_type == 'Out':
-            result.append(claim.member)
 
     result = list(set(result))
 
@@ -127,19 +116,19 @@ def index():
     }
 
     in_patients = {
-        'total': len(in_patients_for(claims)),
-        '1_month': len(in_patients_for(historical['1'][0])),
-        '3_months': len(in_patients_for(historical['3'][0])),
-        '6_months': len(in_patients_for(historical['6'][0])),
-        '24_months': len(in_patients_for(historical['24'][0]))
+        'total': len(patients_amount(claims, 'in')),
+        '1_month': len(patients_amount(historical['1'][0], 'in')),
+        '3_months': len(patients_amount(historical['3'][0], 'in')),
+        '6_months': len(patients_amount(historical['6'][0], 'in')),
+        '24_months': len(patients_amount(historical['24'][0], 'in'))
     }
 
     out_patients = {
-        'total': len(out_patients_for(claims)),
-        '1_month': len(out_patients_for(historical['1'][0])),
-        '3_months': len(out_patients_for(historical['3'][0])),
-        '6_months': len(out_patients_for(historical['6'][0])),
-        '24_months': len(out_patients_for(historical['24'][0]))
+        'total': len(patients_amount(claims, 'out')),
+        '1_month': len(patients_amount(historical['1'][0], 'out')),
+        '3_months': len(patients_amount(historical['3'][0], 'out')),
+        '6_months': len(patients_amount(historical['6'][0], 'out')),
+        '24_months': len(patients_amount(historical['24'][0], 'out'))
     }
 
     amount_summary = {
@@ -201,14 +190,14 @@ def index():
         amount_chart_data['values'].append(amount_summary[str(months)][2])
 
     in_patients_data = [
-        len(in_patients_for(historical['5'][0])),
-        len(in_patients_for(historical['3'][0])),
-        len(in_patients_for(historical['0'][0]))
+        len(patients_amount(historical['5'][0], 'in')),
+        len(patients_amount(historical['3'][0], 'in')),
+        len(patients_amount(historical['0'][0], 'in'))
     ]
     out_patients_data = [
-        len(out_patients_for(historical['5'][0])),
-        len(out_patients_for(historical['3'][0])),
-        len(out_patients_for(historical['0'][0]))
+        len(patients_amount(historical['5'][0], 'out')),
+        len(patients_amount(historical['3'][0], 'out')),
+        len(patients_amount(historical['0'][0], 'out'))
     ]
 
     pagination, claims = claim_service.prepare_pagination(claims_query)
