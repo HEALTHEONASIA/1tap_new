@@ -3,7 +3,7 @@ from flask_wtf import Form
 from wtforms import StringField, SelectField, SubmitField, TextAreaField
 from wtforms import FileField, RadioField, HiddenField, SelectMultipleField
 from wtforms import BooleanField, PasswordField, ValidationError, DateField
-from wtforms import DateTimeField
+from wtforms import DateTimeField, IntegerField
 from wtforms.validators import Required, Email, Length, URL
 from ..models import Payer, Member, User, Provider
 
@@ -14,6 +14,12 @@ class BaseForm(Form):
             filters = unbound_field.kwargs.get('filters', [])
             filters.append(strip_filter)
             return unbound_field.bind(form=form, filters=filters, **options)
+
+    def prepopulate(self, model, exclude=[]):
+        """Prepopulates the form with a given model"""
+        for col in model.columns():
+            if col not in exclude and hasattr(self, col):
+                setattr(getattr(self, col), 'data', getattr(model, col))
 
 
 def strip_filter(value):
@@ -62,7 +68,7 @@ class TerminalForm(BaseForm):
     model = StringField('Model', validators=[Required()])
     location = StringField('Location', validators=[Required()])
     version = StringField('Version', validators=[Required()])
-    last_update = StringField('Last update')
+    last_update = DateTimeField('Last update')
     remarks = TextAreaField('Remarks')
     submit = SubmitField('Save')
 
@@ -73,7 +79,7 @@ class ClaimForm(BaseForm):
     claim_number = StringField('Claims Number')
     claim_type = StringField('Claims Type')
     datetime = DateField('Hidden datetime') # don't show this field in form
-    date = DateField('Date', format='%d/%m/%Y')
+    date = DateField('Date', format='%m/%d/%Y')
     time = DateTimeField('Time', format='%I:%M %p')
     admitted = BooleanField('Admitted')
     discharged = BooleanField('Discharged')
@@ -92,7 +98,8 @@ class GOPForm(BaseForm):
     payer = SelectField('Payer Select', coerce=int)
     policy_number = StringField('Policy Number', validators=[Required()])
     name = StringField('Name', validators=[Required()])
-    dob = StringField('Date of birth', validators=[Required()])
+    dob = DateField('Date of birth', validators=[Required()], 
+                                     format='%m/%d/%Y')
     gender = RadioField('Sex', validators=[Required()],
                             choices=[('male', 'Male'),
                                      ('female', 'Female')])
@@ -112,7 +119,9 @@ class GOPForm(BaseForm):
     medical_details_blood_pressure = StringField('Blood pressure')
     medical_details_physical_finding = StringField('Physical finding')
     medical_details_health_history = TextAreaField('Health history')
-    medical_details_previously_admitted = StringField('Previously admitted')
+    medical_details_previously_admitted = DateField('Previously admitted',
+                                                    format='%d/%m/%Y',
+                                                    default=None)
     medical_details_diagnosis = StringField('Diagnosis')
     medical_details_in_patient = BooleanField('In patient indication')
     medical_details_test_results = TextAreaField('Test results')
@@ -121,15 +130,18 @@ class GOPForm(BaseForm):
 
     doctor_name = SelectField('Doctor name', validators=[Required()],
                               coerce=int)
-    admission_date = StringField('Admission date', validators=[Required()])
-    admission_time = StringField('Admission time', validators=[Required()])
+    admission_date = DateTimeField('Admission date', validators=[Required()],
+                                                 format='%m/%d/%Y')
+    admission_time = DateTimeField('Admission time', validators=[Required()],
+                                                     format='%I:%M %p')
 
     icd_codes = SelectMultipleField('ICD codes', validators=[Required()],
                                     coerce=int)
 
-    room_price = StringField('Room price', validators=[Required(), 
+    room_price = StringField('Room price', validators=[Required(),
                                                        validate_comma_sep_dec,
-                                                       validate_empty_fee])
+                                                       validate_empty_fee],
+                                                       default='0')
     room_type = SelectField('Room type', validators=[Required()],
                             choices=[(False, 'SELECT ROOM'),
                                      ('na', 'NA'),
@@ -147,16 +159,20 @@ class GOPForm(BaseForm):
 
     doctor_fee = StringField('Doctor fee', validators=[Required(),
                                                        validate_comma_sep_dec,
-                                                       validate_empty_fee])
+                                                       validate_empty_fee],
+                                                       default='0')
     surgery_fee = StringField('Surgery fee', validators=[Required(),
                                                        validate_comma_sep_dec,
-                                                       validate_empty_fee])
+                                                       validate_empty_fee],
+                                                       default='0')
     medication_fee = StringField('Medication fee', validators=[Required(),
                                                        validate_comma_sep_dec,
-                                                       validate_empty_fee])
+                                                       validate_empty_fee],
+                                                       default='0')
     quotation = StringField('Quotation', validators=[Required(),
                                                      validate_comma_sep_dec,
-                                                     validate_empty_fee])
+                                                     validate_empty_fee],
+                                                     default='0')
     submit = SubmitField('Send GOP request')
 
     def validate_national_id(self, field):
@@ -180,17 +196,17 @@ class MemberForm(BaseForm):
     address = StringField('Address')
     address_additional = StringField('Address 2')
     tel = StringField('Telephone', validators=[Required()])
-    dob = StringField('Date of birth')
+    dob = DateField('Date of birth', format='%m/%d/%Y')
     gender = SelectField('Gender', validators=[Required()],
                       choices=[('male', 'Male'),
                                ('female', 'Female')])
     marital_status = SelectField('Marital status', validators=[Required()],
                                  choices=[('married', 'Married'),
                                           ('single', 'Single')])
-    start_date = StringField('Start date')
-    effective_date = StringField('Effective date')
-    mature_date = StringField('Mature date')
-    exit_date = StringField('Exit date')
+    start_date = DateField('Start date', format='%m/%d/%Y')
+    effective_date = DateField('Effective date', format='%m/%d/%Y')
+    mature_date = DateField('Mature date', format='%m/%d/%Y')
+    exit_date = DateField('Exit date', format='%m/%d/%Y')
     product = StringField('Product')
     plan = StringField('Plan')
     policy_number = StringField('Policy number')
