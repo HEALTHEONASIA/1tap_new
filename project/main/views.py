@@ -260,12 +260,8 @@ def block_unauthenticated_url(filename):
 
 
 @main.route('/terminals')
-@login_required()
+@login_required(deny_types=['payer'])
 def terminals():
-    if current_user.get_type() != 'provider' and \
-      current_user.get_role() != 'admin':
-        return redirect(url_for('main.index'))
-
     # retreive the all current user's terminals
     if current_user.get_type() == 'provider':
         terminals = current_user.provider.terminals
@@ -292,12 +288,8 @@ def terminals():
 
 
 @main.route('/terminal/<int:terminal_id>')
-@login_required()
+@login_required(deny_types=['payer'])
 def terminal(terminal_id):
-    if current_user.get_type() != 'provider' and \
-      current_user.get_role() != 'admin':
-        return redirect(url_for('main.index'))
-
     if current_user.get_type() == 'provider':
         terminal = current_user.provider.terminals.filter_by(
             id=terminal_id).first()
@@ -326,11 +318,8 @@ def terminal(terminal_id):
 
 
 @main.route('/terminal/add', methods=['GET', 'POST'])
-@login_required()
+@login_required(types=['provider'])
 def terminal_add():
-    if current_user.get_type() != 'provider':
-        return redirect(url_for('main.index'))
-
     form = TerminalForm()
 
     # if the form was sent
@@ -347,12 +336,8 @@ def terminal_add():
 
 
 @main.route('/terminal/<int:terminal_id>/edit', methods=['GET', 'POST'])
-@login_required()
+@login_required(deny_types=['payer'])
 def terminal_edit(terminal_id):
-    if current_user.get_type() != 'provider' and \
-      current_user.get_role() != 'admin':
-        return redirect(url_for('main.index'))
-
     # retreive the current user's terminal by its ID
     if current_user.get_type() == 'provider':
         terminal = current_user.provider.terminals.filter_by(id=terminal_id).first()
@@ -556,11 +541,8 @@ def claim(claim_id):
 
 
 @main.route('/claim/add', methods=['GET', 'POST'])
-@login_required()
+@login_required(types=['provider'])
 def claim_add():
-    if current_user.get_type() != 'provider':
-        return redirect(url_for('main.index'))
-
     terminals = current_user.provider.terminals
     members = current_user.provider.members
 
@@ -618,12 +600,8 @@ def commit_claims():
 
 
 @main.route('/claim/<int:claim_id>/edit', methods=['GET', 'POST'])
-@login_required()
+@login_required(deny_types=['payer'])
 def claim_edit(claim_id):
-    if current_user.get_type() != 'provider' and \
-      current_user.get_role() != 'admin':
-        return redirect(url_for('main.index'))
-
     if current_user.get_type() == 'provider':
         claim = current_user.provider.claims.filter_by(id=claim_id).first()
         terminals = current_user.provider.terminals
@@ -660,7 +638,6 @@ def claim_edit(claim_id):
         form.date.data = claim.datetime
         form.time.data = claim.datetime
 
-    # render the "transaction-form.html" template with the given terminal
     return render_template('claim-form.html', form=form, claim=claim)
 
 
@@ -733,11 +710,8 @@ def member(member_id):
 
 
 @main.route('/member/add', methods=['GET', 'POST'])
-@login_required()
+@login_required(types=['provider'])
 def member_add():
-    if current_user.get_type() != 'provider':
-        return redirect(url_for('main.index'))
-
     form = MemberForm()
 
     # if the form was sent
