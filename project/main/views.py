@@ -34,16 +34,6 @@ def allowed_file(filename):
 def pass_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def to_float_or_zero(value):
-    try:
-        if value is not None:
-            value = float(value)
-        else:
-            value = 0.00
-    except ValueError:
-        value = 0.0
-    return value
-
 def photo_file_name_santizer(photo):
     filename = secure_filename(photo.data.filename)
 
