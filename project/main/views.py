@@ -118,8 +118,6 @@ def index():
 
     total_claims = len(claims)
 
-    page = request.args.get('page')
-
     # get the claims in the given month ranges
     historical = {
         '0': models.Claim.for_months(0),
@@ -215,16 +213,7 @@ def index():
         len(out_patients_for(historical['0'][0]))
     ]
 
-    # claims pagination
-    pagination = claims_query.paginate(per_page=10)
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        claims = claims_query.paginate(page=page, per_page=10).items
+    pagination, claims = claim_service.prepare_pagination(claims_query)
 
     context = {
         'providers': providers,
@@ -269,18 +258,7 @@ def terminals():
     if current_user.get_role() == 'admin':
         terminals = models.Terminal.query.filter(models.Terminal.id != False)
 
-    # pagination
-    pagination = terminals.paginate(per_page=10)
-
-    page = request.args.get('page')
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        terminals = terminals.paginate(page=page, per_page=10).items
+    pagination, terminals = terminal_service.prepare_pagination(terminals)
 
     # render the "terminals.html" template with the given terminals
     return render_template('terminals.html', terminals=terminals,
@@ -299,21 +277,11 @@ def terminal(terminal_id):
 
     claims = terminal.claims
 
-    # pagination
-    pagination = claims.paginate(per_page=10)
-
-    page = request.args.get('page')
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        claims = claims.paginate(page=page, per_page=10).items
+    pagination, claims = claim_service.prepare_pagination(claims)
 
     # render the "terminal.html" template with the given terminal
-    return render_template('terminal.html', terminal=terminal, claims=claims,
+    return render_template('terminal.html', terminal=terminal,
+                                            claims=claims,
                                             pagination=pagination)
 
 
@@ -377,18 +345,7 @@ def claims():
         claims = models.Claim.query.order_by(desc(models.Claim.datetime))\
             .filter(models.Claim.id != False)
 
-    # pagination
-    pagination = claims.paginate(per_page=10)
-
-    page = request.args.get('page')
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        claims = claims.paginate(page=page, per_page=10).items
+    pagination, claims = claim_service.prepare_pagination(claims)
 
     # render the "claims.html" template with the given transactions
     return render_template('claims.html', claims=claims,
@@ -655,18 +612,7 @@ def members():
     if current_user.get_role() == 'admin':
         members = models.Member.query.filter(models.Member.id != False)
 
-    # pagination
-    pagination = members.paginate(per_page=10)
-
-    page = request.args.get('page')
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        members = members.paginate(page=page, per_page=10).items
+    pagination, members = member_service.prepare_pagination(members)
 
     # render the "members.html" template with the given members
     return render_template('members.html', members=members,
@@ -691,18 +637,7 @@ def member(member_id):
         member = models.Member.query.get(member_id)
         claims = member.claims
 
-    # pagination
-    pagination = claims.paginate(per_page=10)
-
-    page = request.args.get('page')
-
-    # if some page is chosen otherwise than the first
-    if page or pagination.pages > 1:
-        try:
-            page = int(page)
-        except (ValueError, TypeError):
-            page = 1
-        claims = claims.paginate(page=page, per_page=10).items
+    pagination, claims = claim_service.prepare_pagination(claims)
 
     # render the "member.html" template with the given member
     return render_template('member.html', member=member, claims=claims,
