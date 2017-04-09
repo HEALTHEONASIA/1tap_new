@@ -291,14 +291,11 @@ def terminal_add():
 
 
 @main.route('/terminal/<int:terminal_id>/edit', methods=['GET', 'POST'])
-@login_required(deny_types=['payer'])
+@login_required(types=['provider'])
 def terminal_edit(terminal_id):
     # retreive the current user's terminal by its ID
     if current_user.get_type() == 'provider':
         terminal = current_user.provider.terminals.filter_by(id=terminal_id).first()
-
-    if current_user.get_role() == 'admin':
-        terminal = models.Terminal.query.get(terminal_id)
 
     form = TerminalForm()
 
