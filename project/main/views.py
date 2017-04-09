@@ -1,4 +1,4 @@
-import os, random
+import os, random, string
 
 from calendar import month_abbr
 from datetime import date, datetime
@@ -30,6 +30,9 @@ terminal_service = TerminalService()
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1] in config['production'].ALLOWED_EXTENSIONS
+
+def pass_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def to_float_or_zero(value):
     try:
