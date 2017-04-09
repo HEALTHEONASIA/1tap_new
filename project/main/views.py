@@ -279,8 +279,7 @@ def terminal_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        terminal = models.Terminal()
-        terminal.provider_id = current_user.provider.id
+        terminal = models.Terminal(provider_id=current_user.provider.id)
 
         terminal_service.update_from_form(terminal, form)
 
@@ -390,8 +389,7 @@ def claim(claim_id):
             national_id=form.national_id.data).first()
 
         if not member:
-            member = models.Member()
-            member.photo = photo_filename
+            member = models.Member(photo=photo_filename)
 
             member_service.update_from_form(member, form,
                                             exclude=['member_photo'])
@@ -500,8 +498,7 @@ def claim_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        claim = models.Claim()
-        claim.provider_id = current_user.provider.id
+        claim = models.Claim(provider_id=current_user.provider.id)
         claim_service.update_from_form(claim, form)
         
         member = models.Member.query.get(form.member_id.data)
@@ -635,12 +632,10 @@ def member_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        # initialize an empty mebmer object
-        member = models.Member()
-
         # update the photo
         photo_filename = photo_file_name_santizer(form.photo)
-        member.photo = photo_filename
+
+        member = models.Member(photo=photo_filename)
 
         # append the patient to the provider
         # by which the patient has been created
