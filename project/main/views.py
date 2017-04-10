@@ -433,12 +433,9 @@ def claim_add():
 
     form = ClaimForm()
 
-    terminals_list = [(terminal.id,terminal.serial_number) \
-                        for terminal in terminals]
-    member_list = [(member.id,member.name) for member in members]
-
-    form.terminal_id.choices += terminals_list
-    form.member_id.choices += member_list
+    form.terminal_id.choices += [(terminal.id,terminal.serial_number) \
+                                 for terminal in terminals]
+    form.member_id.choices += [(member.id,member.name) for member in members]
 
     # if the form was sent
     if form.validate_on_submit():
@@ -463,11 +460,9 @@ def claim_edit(claim_id):
 
     form = ClaimForm()
 
-    terminal_list = [(terminal.id,terminal.serial_number) \
-                        for terminal in terminals]
-    member_list = [(member.id,member.name) for member in members]
-    form.terminal_id.choices += terminal_list
-    form.member_id.choices += member_list
+    form.terminal_id.choices += [(terminal.id,terminal.serial_number) \
+                                 for terminal in terminals]
+    form.member_id.choices += [(member.id,member.name) for member in members]
 
     # if the form was sent
     if form.validate_on_submit():
