@@ -97,7 +97,7 @@ class ClaimForm(BaseForm):
 class GOPForm(BaseForm):
     patient_medical_no = StringField('Patient medical no.',
                                      validators=[Required()])
-    payer = SelectField('Payer Select', coerce=int)
+    payer = SelectField('Payer Select', coerce=int, choices=[('0', 'None')])
     policy_number = StringField('Policy Number', validators=[Required()])
     name = StringField('Name', validators=[Required()])
     dob = DateField('Date of birth', validators=[Required()], 
@@ -130,7 +130,7 @@ class GOPForm(BaseForm):
     medical_details_treatment_plan = TextAreaField('Treatment plan')
 
     doctor_name = SelectField('Doctor name', validators=[Required()],
-                              coerce=int)
+                              coerce=int, choices=[('0', 'None')])
     admission_date = DateTimeField('Admission date', validators=[Required()],
                                                  format='%m/%d/%Y')
     admission_time = DateTimeField('Admission time', validators=[Required()],
