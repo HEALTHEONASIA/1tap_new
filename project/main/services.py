@@ -35,7 +35,6 @@ class ExtFuncsMixin(object):
         return (pagination, items)
 
 
-
 class MedicalDetailsService(ExtFuncsMixin, SQLAlchemyService):
     __model__ = models.MedicalDetails
     __db__ = db
