@@ -82,8 +82,7 @@ def index():
     if current_user.get_type() == 'provider':
         providers = []
         members = current_user.provider.members.all()
-        claims_query = current_user.provider.claims.order_by(
-            desc(models.Claim.datetime)).filter(models.Claim.id != False)
+        claims_query = current_user.provider.claims.filter(models.Claim.id != False)
 
     if current_user.get_type() == 'payer':
         claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
@@ -91,16 +90,16 @@ def index():
             .filter(models.Claim.id.in_(claim_ids)).all()
         members = models.Member.query.join(models.Claim, models.Member.claims)\
             .filter(models.Claim.id.in_(claim_ids)).all()
-        claims_query = models.Claim.query.order_by(
-            desc(models.Claim.datetime)).filter(models.Claim.id.in_(claim_ids))
+        claims_query = models.Claim.query.filter(models.Claim.id.in_(claim_ids))
 
     if current_user.get_role() == 'admin':
         providers = models.Provider.query.all()
         members = models.Member.query.all()
         # filtering to get the query object, rather than objects list
         # it needs to make apply a pagination on that query object
-        claims_query = models.Claim.query.order_by(
-            desc(models.Claim.datetime)).filter(models.Claim.id != False)
+        claims_query = models.Claim.query.filter(models.Claim.id != False)
+
+    claims_query = claims_query.order_by(desc(models.Claim.datetime))
 
     claims = claims_query.all()
     total_claims = len(claims)
@@ -256,8 +255,8 @@ def terminals():
 @login_required(deny_types=['payer'])
 def terminal(terminal_id):
     if current_user.get_type() == 'provider':
-        terminal = current_user.provider.terminals.filter_by(
-            id=terminal_id).first()
+        terminal = terminal_service.first(id=terminal_id,
+                                          provider_id=current_user.provider.id)
 
     if current_user.get_role() == 'admin':
         terminal = models.Terminal.query.get(terminal_id)
