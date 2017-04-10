@@ -437,16 +437,14 @@ def claim_add():
     terminals = terminal_service.all_for_user(current_user)
     members = member_service.all_for_user(current_user)
 
-    terminal_list = [(terminal.id,terminal.serial_number) \
-                        for terminal in terminals]
-    terminal_list.insert(0, (-1, 'Please select a terminal'))
-
-    member_list = [(member.id,member.name) for member in members]
-    member_list.insert(0, (-1, 'Please select a member'))
-
     form = ClaimForm()
-    form.terminal_id.choices = terminal_list
-    form.member_id.choices = member_list
+
+    terminals_list = [(terminal.id,terminal.serial_number) \
+                        for terminal in terminals]
+    member_list = [(member.id,member.name) for member in members]
+
+    form.terminal_id.choices += terminals_list
+    form.member_id.choices += member_list
 
     # if the form was sent
     if form.validate_on_submit():
@@ -469,16 +467,13 @@ def claim_edit(claim_id):
     members = member_service.all_for_user(current_user)
     terminals = terminal_service.all_for_user(current_user)
 
+    form = ClaimForm()
+
     terminal_list = [(terminal.id,terminal.serial_number) \
                         for terminal in terminals]
-    terminal_list.insert(0, (-1, 'Please select a terminal'))
-
     member_list = [(member.id,member.name) for member in members]
-    member_list.insert(0, (-1, 'Please select a member'))
-
-    form = ClaimForm()
-    form.terminal_id.choices = terminal_list
-    form.member_id.choices = member_list
+    form.terminal_id.choices += terminal_list
+    form.member_id.choices += member_list
 
     # if the form was sent
     if form.validate_on_submit():

@@ -83,8 +83,10 @@ class ClaimForm(BaseForm):
     time = DateTimeField('Time', format='%I:%M %p')
     admitted = BooleanField('Admitted')
     discharged = BooleanField('Discharged')
-    member_id = SelectField('Member', validators=[validate_dropdown], coerce=int)
-    terminal_id = SelectField('Terminal', validators=[validate_dropdown], coerce=int)
+    member_id = SelectField('Member', validators=[validate_dropdown], coerce=int,
+                                      choices=[(-1, 'Please select a member')])
+    terminal_id = SelectField('Terminal', validators=[validate_dropdown], coerce=int,
+                                          choices=[(-1, 'Please select a terminal')])
     submit = SubmitField('Save')
 
     def validate_datetime(self, field):
