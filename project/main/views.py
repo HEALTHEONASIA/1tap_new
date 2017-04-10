@@ -94,14 +94,10 @@ def index():
     total_claims = len(claims)
 
     # get the claims in the given month ranges
-    historical = {
-        '0': models.Claim.for_months(0),
-        '1': models.Claim.for_months(1),
-        '3': models.Claim.for_months(3),
-        '5': models.Claim.for_months(5),
-        '6': models.Claim.for_months(6),
-        '24': models.Claim.for_months(24)
-    }
+    months = ['0', '1', '3', '5', '6', '24']
+    historical = {}
+    for month in months:
+        historical[month] = models.Claim.for_months(int(month))
 
     in_patients = {
         'total': len(patients_amount(claims, 'in')),
