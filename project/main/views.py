@@ -77,26 +77,18 @@ def patients_amount(claims, _type):
 def index():
     if current_user.get_type() == 'provider':
         providers = []
-        members = current_user.provider.members.all()
-        claims_query = current_user.provider.claims.filter(models.Claim.id != False)
 
     if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
         providers = models.Provider.query.join(models.Claim, models.Provider.claims)\
             .filter(models.Claim.id.in_(claim_ids)).all()
-        members = models.Member.query.join(models.Claim, models.Member.claims)\
-            .filter(models.Claim.id.in_(claim_ids)).all()
-        claims_query = models.Claim.query.filter(models.Claim.id.in_(claim_ids))
 
     if current_user.get_role() == 'admin':
         providers = models.Provider.query.all()
-        members = models.Member.query.all()
-        # filtering to get the query object, rather than objects list
-        # it needs to make apply a pagination on that query object
-        claims_query = models.Claim.query.filter(models.Claim.id != False)
 
-    claims_query = claims_query.order_by(desc(models.Claim.datetime))
+    members = member_service.all_for_user(current_user)
 
+    claims_query = claim_service.all_for_user(current_user)\
+                                .order_by(desc(models.Claim.datetime))
     claims = claims_query.all()
     total_claims = len(claims)
 
@@ -234,11 +226,7 @@ def block_unauthenticated_url(filename):
 @login_required(deny_types=['payer'])
 def terminals():
     # retreive the all current user's terminals
-    if current_user.get_type() == 'provider':
-        terminals = current_user.provider.terminals
-
-    if current_user.get_role() == 'admin':
-        terminals = models.Terminal.query.filter(models.Terminal.id != False)
+    terminals = terminal_service.all_for_user(current_user)
 
     pagination, terminals = terminal_service.prepare_pagination(terminals)
 
@@ -250,12 +238,7 @@ def terminals():
 @main.route('/terminal/<int:terminal_id>')
 @login_required(deny_types=['payer'])
 def terminal(terminal_id):
-    if current_user.get_type() == 'provider':
-        terminal = terminal_service.first(id=terminal_id,
-                                          provider_id=current_user.provider.id)
-
-    if current_user.get_role() == 'admin':
-        terminal = models.Terminal.query.get(terminal_id)
+    terminal = terminal_service.get_for_user(terminal_id, current_user)
 
     claims = terminal.claims
 
@@ -333,16 +316,7 @@ def claims():
 @main.route('/claim/<int:claim_id>', methods=['GET', 'POST'])
 @login_required()
 def claim(claim_id):
-    if current_user.get_type() == 'provider':
-        claim = current_user.provider.claims.filter_by(id=claim_id).first()
-
-    if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
-        claim = models.Claim.query.filter(models.Claim.id==claim_id and \
-                models.Claim.id.in_(claim_ids)).first()
-
-    if current_user.get_role() == 'admin':
-        claim = models.Claim.query.get(claim_id)
+    claim = claim_service.get_for_user(claim_id, current_user)
 
     if claim.new_claim:
         claim.new_claim = 0
@@ -468,8 +442,8 @@ def claim(claim_id):
 @main.route('/claim/add', methods=['GET', 'POST'])
 @login_required(types=['provider'])
 def claim_add():
-    terminals = current_user.provider.terminals
-    members = current_user.provider.members
+    terminals = terminal_service.all_for_user(current_user)
+    members = member_service.all_for_user(current_user)
 
     terminal_list = [(terminal.id,terminal.serial_number) \
                         for terminal in terminals]
@@ -499,15 +473,9 @@ def claim_add():
 @main.route('/claim/<int:claim_id>/edit', methods=['GET', 'POST'])
 @login_required(deny_types=['payer'])
 def claim_edit(claim_id):
-    if current_user.get_type() == 'provider':
-        claim = current_user.provider.claims.filter_by(id=claim_id).first()
-        terminals = current_user.provider.terminals
-
-    if current_user.get_role() == 'admin':
-        claim = models.Claim.query.get(claim_id)
-        terminals = models.Terminal.query.all()
-
-    members = models.Member.query.all()
+    claim = claim_service.get_for_user(claim_id, current_user)
+    members = member_service.all_for_user(current_user)
+    terminals = terminal_service.all_for_user(current_user)
 
     terminal_list = [(terminal.id,terminal.serial_number) \
                         for terminal in terminals]
@@ -541,16 +509,7 @@ def claim_edit(claim_id):
 @main.route('/members')
 @login_required()
 def members():
-    if current_user.get_type() == 'provider':
-        members = current_user.provider.members
-
-    if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
-        members = models.Member.query.join(models.Claim, models.Member.claims)\
-            .filter(models.Claim.id.in_(claim_ids))
-
-    if current_user.get_role() == 'admin':
-        members = models.Member.query.filter(models.Member.id != False)
+    members = member_service.all_for_user(current_user)
 
     pagination, members = member_service.prepare_pagination(members)
 
@@ -562,20 +521,9 @@ def members():
 @main.route('/member/<int:member_id>')
 @login_required()
 def member(member_id):
-    if current_user.get_type() == 'provider':
-        claim_ids = [claim.id for claim in current_user.provider.claims]
-        member = current_user.provider.members.filter_by(id=member_id).first()
-        claims = member.claims.filter(models.Claim.id.in_(claim_ids))
+    member = member_service.get_for_user(member_id, current_user)
 
-    if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment]
-        member = models.Member.query.join(models.Claim, models.Member.claims)\
-            .filter(models.Claim.id.in_(claim_ids)).filter(models.Member.id==member_id).first()
-        claims = member.claims.filter(models.Claim.id.in_(claim_ids))
-
-    if current_user.get_role() == 'admin':
-        member = models.Member.query.get(member_id)
-        claims = member.claims
+    claims = member.claims
 
     pagination, claims = claim_service.prepare_pagination(claims)
 
@@ -612,7 +560,7 @@ def member_add():
 @login_required(types=['provider'])
 def member_edit(member_id):
     # retreive the current user's member by its ID
-    member = current_user.provider.members.filter_by(id=member_id).first()
+    member = member_service.get_for_user(member_id, current_user)
 
     form = MemberForm()
 
