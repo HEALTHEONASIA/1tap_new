@@ -79,13 +79,14 @@ def index():
         providers = []
 
     if current_user.get_type() == 'payer':
+        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
         providers = models.Provider.query.join(models.Claim, models.Provider.claims)\
             .filter(models.Claim.id.in_(claim_ids)).all()
 
     if current_user.get_role() == 'admin':
         providers = models.Provider.query.all()
 
-    members = member_service.all_for_user(current_user)
+    members = member_service.all_for_user(current_user).all()
 
     claims_query = claim_service.all_for_user(current_user)\
                                 .order_by(desc(models.Claim.datetime))

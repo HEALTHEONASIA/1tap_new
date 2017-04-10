@@ -54,7 +54,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
                                        .filter(models.Claim.id.in_(claim_ids))
 
         elif user.get_role() == 'admin':
-            return self.__model__.query.filter(self.__model__..id != False)
+            return self.__model__.query.filter(self.__model__.id != False)
 
         else:
             return None
@@ -70,7 +70,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
                                        .filter(self.__model__.id==id).first()
 
         elif user.get_role() == 'admin':
-            return self.__model__.query.get(id)
+            return self.get(id)
 
         else:
             return None
@@ -98,13 +98,13 @@ class ClaimService(ExtFuncsMixin, SQLAlchemyService):
         if user.get_type() == 'provider':
             return user.provider.claims.filter_by(id=id).first()
 
-        elif current_user.get_type() == 'payer':
+        elif user.get_type() == 'payer':
             claim_ids = [gop.claim.id for gop in user.payer.guarantees_of_payment]
             return self.__model__.query.filter(self.__model__.id==id and \
                                         self.__model__.id.in_(claim_ids)).first()
 
         elif user.get_role() == 'admin':
-            return self.__model__.get(id)
+            return self.get(id)
 
         else:
             return None
@@ -134,7 +134,7 @@ class TerminalService(ExtFuncsMixin, SQLAlchemyService):
             return self.first(id=id, provider_id=user.provider.id)
 
         elif user.get_role() == 'admin':
-            return self.__model__.get(id)
+            return self.get(id)
 
         else:
             return None
