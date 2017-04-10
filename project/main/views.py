@@ -369,16 +369,8 @@ def claim(claim_id):
                                 for d in current_user.provider.doctors]
 
     if current_user.get_type() == 'provider' and request.method != 'POST':
-        form.name.data = claim.member.name
-        form.dob.data = claim.member.dob
-        form.policy_number.data = claim.member.policy_number
-        form.admission_date.data = claim.datetime
-        form.admission_time.data = claim.datetime
-        form.quotation.data = claim.amount
-        form.gender.data = claim.member.gender
-        form.national_id.data = claim.member.national_id
-        form.current_national_id.data = claim.member.national_id
-        form.tel.data = claim.member.tel
+        form.prepopulate(claim.member)
+        form.prepopulate(claim)
 
         form.medical_details_previously_admitted.data = datetime.now()
 
