@@ -272,8 +272,7 @@ def terminal_add():
 @login_required(types=['provider'])
 def terminal_edit(terminal_id):
     # retreive the current user's terminal by its ID
-    terminal = terminal_service.first(id=terminal_id,
-                                      provider_id=current_user.provider.id)
+    terminal = terminal_service.get_for_user(terminal_id, current_user)
 
     form = TerminalForm()
 
@@ -294,15 +293,7 @@ def terminal_edit(terminal_id):
 @main.route('/claims')
 @login_required()
 def claims():
-    if current_user.get_type() == 'provider':
-        claims = claim_service._find(provider_id=current_user.provider.id)
-
-    if current_user.get_type() == 'payer':
-        claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
-        claims = models.Claim.query.filter(models.Claim.id.in_(claim_ids))
-
-    if current_user.get_role() == 'admin':
-        claims = models.Claim.query.filter(models.Claim.id != False)
+    claims = claim_service.all_for_user(current_user)
 
     # order by datetime
     claims = claims.order_by(desc(models.Claim.datetime))
