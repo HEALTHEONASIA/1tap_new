@@ -929,21 +929,6 @@
       <!-- Notifications functionality -->
       <script src="/static/js/notify.min.js" type="text/javascript"></script>
       <script type="text/javascript">
-        // check for the new GOP requests' status changes
-        // for every 7 seconds and push the notification
-        // if there were any changes
-        setInterval(function() {
-          $.get('/check-notifications', function(data) {
-            var str = '';
-            for (var key in data) {
-              if (data[key] != null) {
-                // push the notification for an every GOP request status change
-                str = 'GOP request #' + key + ' has became "' + data[key] + '"';
-                $.notify(str, {className: 'info', autoHide: false});
-              }
-            }
-          });
-        }, 7000);
         // when the user click on the notification it redirects
         // the user to the appropriate GOP requst
         $(document).on('click', '.notifyjs-bootstrap-base', function() {

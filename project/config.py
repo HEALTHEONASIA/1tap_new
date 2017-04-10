@@ -20,14 +20,6 @@ class Config:
     MAIL_USERNAME = 'bulletproof.sell@gmail.com'
     MAIL_PASSWORD = 'bull3tpr00f.s3ll'
 
-    try:
-        import config_twillo
-        TWILIO_ACCOUNT_SID = config_twillo.TWILIO_ACCOUNT_SID
-        TWILIO_AUTH_TOKEN = config_twillo.TWILIO_AUTH_TOKEN
-        TWILIO_NUMBER = config_twillo.TWILIO_NUMBER
-    except ImportError:
-        pass
-
     @staticmethod
     def init_app(app):
         pass

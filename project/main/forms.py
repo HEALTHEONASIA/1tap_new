@@ -219,7 +219,3 @@ class MemberForm(BaseForm):
                                choices=[('in', 'In'),
                                         ('out', 'Out')])
     submit = SubmitField('Save')
-
-class SMSVerificationForm(BaseForm):
-    verification_code = StringField('Verification Code', validators=[Required()])
-    submit = SubmitField('Verify')

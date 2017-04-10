@@ -13,8 +13,6 @@ from flask_mail import Message
 from .services import MedicalDetailsService, MemberService, ClaimService
 from .services import GuaranteeOfPaymentService, TerminalService
 from .forms import ClaimForm, MemberForm, TerminalForm, GOPForm
-from .forms import SMSVerificationForm
-from .twillo_2_factor_authentication import send_confirmation_code
 from ..api.helpers import convert_dict_claim_model, convert_dict_member_model
 from ..api.helpers import prepare_claim_dict, prepare_member_dict
 
@@ -460,16 +458,7 @@ def claim(claim_id):
             mail.send(msg)
         except Exception as e:
             pass
-        
-        # Creating notification message
-        notification_message = "Request for Intial GOP - %s" % gop.provider.company
-        notification_message = notification_message + "<BR>"
-        notification_message = notification_message + "<a href=/request/%s>Go To GOP</a>" %(str(gop.id))
-        
-        notification = models.Notification(message=notification_message,user_id=notification_payer_id)
-        db.session.add(notification)
-        db.session.commit()
-        
+
         flash('Your GOP request has been sent.')
 
     if form:
@@ -502,38 +491,11 @@ def claim_add():
         
         member = models.Member.query.get(form.member_id.data)
 
-        # 2 Factor Authentication Code
-        if member is not None:
-            pass
-            # if member.tel:
-            #     verification_code = send_confirmation_code(member.tel)
-            #     session['redirect_from'] = 'claim'
-            #     session['claim'] = prepare_claim_dict(claim)
-            #     return redirect(url_for('main.sms_verify', verification_phone_number=member.tel))
-            # else:
-            #     flash('No Member Telephone Data Present. Data Not Saved.')
-        else:
-            flash('No member data present. Data not saved')
-
         flash('The claim has been added.')
 
         return redirect(url_for('main.claims'))
 
     return render_template('claim-form.html', form=form)
-
-
-def commit_claims():
-    # commit the database changes
-    claim = convert_dict_claim_model(session['claim'])
-    db.session.add(claim)
-    db.session.commit()
-
-    # removing passed on values
-    for key in session.keys():
-        if key in ['redirect_from','claim', 'verification_code']:
-            session.pop(key, None)
-
-    flash('The claim has been added')
 
 
 @main.route('/claim/<int:claim_id>/edit', methods=['GET', 'POST'])
@@ -643,29 +605,9 @@ def member_add():
         # save the form data to the object
         member_service.update_from_form(member, form, exclude=['photo'])
 
-        # 2 Factor Authentication Code
-        # if form.tel.data:
-        #     # verification_code = send_confirmation_code(form.tel.data)
-        #     session['redirect_from'] = 'member'
-        #     session['member'] = prepare_member_dict(member)
-        #     return redirect(url_for('main.sms_verify', verification_phone_number=form.tel.data))
-        # else:
-        #     flash('No Telephone Data Present. Data Not Saved.')
-
         return redirect(url_for('main.members'))
 
     return render_template('member-form.html', form=form)
-
-def commit_members():
-    # commit the database changes
-    member = convert_dict_member_model(session['member'])
-    db.session.add(member)
-    db.session.commit()
-
-    # removing passed on values
-    for key in session.keys():
-        if key in ['redirect_from','member', 'verification_code']:
-            session.pop(key, None)
 
 
 @main.route('/member/<int:member_id>/edit', methods=['GET', 'POST'])
@@ -782,28 +724,3 @@ def icd_code_search():
 
     return render_template('icd-code-search-results.html', icd_codes=found,
                                query=query)
-
-
-@main.route('/sms-verify-form', methods=['GET', 'POST'])
-@login_required()
-def sms_verify():
-    form = SMSVerificationForm()
-    verification_phone_number = request.args.get('verification_phone_number')
-
-    # if the form was sent
-    if form.validate_on_submit():
-
-        if form.verification_code.data == session['verification_code']:
-            if session['redirect_from'] == 'member':
-                commit_members()
-                return redirect(url_for('main.members'))
-
-            if session['redirect_from'] == 'claim':
-                commit_claims()
-                return redirect(url_for('main.claims'))
-
-        else:
-            flash('Wrong code. Please try again.')
-
-    return render_template('sms-verify-form.html', form=form,
-        verification_phone_number=verification_phone_number)
