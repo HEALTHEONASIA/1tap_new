@@ -349,8 +349,7 @@ def claim(claim_id):
             notification_payer_id = user.id
 
         msg = Message("Request for GOP - %s" % gop.provider.company,
-                      sender=("MediPay",
-                              "request@app.medipayasia.com"),
+                      sender=("MediPay", "request@app.medipayasia.com"),
                       recipients=[recipient_email])
 
         msg.html = render_template("request-email.html", gop=gop,
