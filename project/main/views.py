@@ -54,6 +54,11 @@ def index():
     for month in months:
         historical[month] = Claim.for_months(int(month))
 
+    amount_summary = {'total': Claim.amount_sum(0)[0]}
+    months = ['0', '1', '2', '3', '4', '5', '6', '24']
+    for month in months:
+        amount_summary[month] = Claim.amount_sum(int(month))
+
     in_patients = {
         'total': len(patients_amount(claims, 'in')),
         '1_month': len(patients_amount(historical['1'][0], 'in')),
@@ -69,11 +74,6 @@ def index():
         '6_months': len(patients_amount(historical['6'][0], 'out')),
         '24_months': len(patients_amount(historical['24'][0], 'out'))
     }
-
-    amount_summary = {'total': Claim.amount_sum(0)[0]}
-    months = ['0', '1', '2', '3', '4', '5', '6', '24']
-    for month in months:
-        amount_summary[month] = Claim.amount_sum(int(month))
 
     by_cost = {}
     by_icd = {}
