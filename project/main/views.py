@@ -302,21 +302,20 @@ def claim(claim_id):
 
         payer = Payer.query.get(form.payer.data)
 
-        gop = GuaranteeOfPayment()
-        exclude = ['doctor_name', 'status']
-
-        gop.claim = claim
-        gop.payer = payer
-        gop.member = member
-        gop.provider = current_user.provider
-        gop.doctor_name = Doctor.query.get(int(form.doctor_name.data)).name
-        gop.status = 'pending'
-        gop.medical_details = medical_details
+        gop = GuaranteeOfPayment(
+                claim=claim,
+                payer=payer,
+                member=member,
+                provider=current_user.provider,
+                docor_name=Doctor.query.get(int(form.doctor_name.data)).name,
+                status='pending',
+                medical_details=medical_details)
 
         for icd_code_id in form.icd_codes.data:
             icd_code = ICDCode.query.get(int(icd_code_id))
             gop.icd_codes.append(icd_code)
 
+        exclude = ['doctor_name', 'status', 'icd_codes']
         gop_service.update_from_form(gop, form, exclude=exclude)
 
         # initializing user and random password 
