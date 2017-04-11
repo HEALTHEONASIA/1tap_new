@@ -571,8 +571,7 @@ def search():
 @main.route('/icd-code/search', methods=['GET'])
 def icd_code_search():
     found = []
-    query = request.args.get('query')
-    query = query.lower()
+    query = request.args.get('query').lower()
     
     if not query:
         return render_template('icd-code-search-results.html',
@@ -580,12 +579,12 @@ def icd_code_search():
 
     icd_codes = ICDCode.query.all()
 
+    fields = ['code', 'description', 'common_term']
+    find = lambda query, obj, attr: query in getattr(obj, attr).lower()
+
     for icd_code in icd_codes:
-        if query in icd_code.code.lower() \
-        or query in icd_code.description.lower() \
-        or query in icd_code.common_term.lower():
+        if any([find(query, icd_code, field) for field in fields]):
             found.append(icd_code)
-            continue
 
     return render_template('icd-code-search-results.html', icd_codes=found,
                                query=query)
