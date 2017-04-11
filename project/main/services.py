@@ -17,6 +17,12 @@ class ExtFuncsMixin(object):
         self.__db__.session.add(model)
         self.__db__.session.commit()
 
+    def all_for_admin(self):
+        return self.__model__.query.filter(self.__model__.id != False)
+
+    def get_for_admin(self, id):
+        return self.get(id)
+
     @staticmethod
     def prepare_pagination(items):
         # pagination
@@ -54,7 +60,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
                                        .filter(models.Claim.id.in_(claim_ids))
 
         elif user.get_role() == 'admin':
-            return self.__model__.query.filter(self.__model__.id != False)
+            return self.all_for_admin()
 
         return None
 
@@ -69,7 +75,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
                                        .filter(self.__model__.id==id).first()
 
         elif user.get_role() == 'admin':
-            return self.get(id)
+            return self.get_for_admin(id)
 
         return None
 
@@ -87,7 +93,7 @@ class ClaimService(ExtFuncsMixin, SQLAlchemyService):
             return self.__model__.query.filter(self.__model__.id.in_(claim_ids))
 
         elif user.get_role() == 'admin':
-            return self.__model__.query.filter(self.__model__.id != False)
+            return self.all_for_admin()
 
         return None
 
@@ -101,7 +107,7 @@ class ClaimService(ExtFuncsMixin, SQLAlchemyService):
                                         self.__model__.id.in_(claim_ids)).first()
 
         elif user.get_role() == 'admin':
-            return self.get(id)
+            return self.get_for_admin(id)
 
         return None
 
@@ -120,7 +126,7 @@ class TerminalService(ExtFuncsMixin, SQLAlchemyService):
             return user.provider.terminals
 
         elif user.get_role() == 'admin':
-            return self.__model__.query.filter(self.__model__.id != False)
+            return self.all_for_admin()
 
         return None
 
@@ -129,6 +135,6 @@ class TerminalService(ExtFuncsMixin, SQLAlchemyService):
             return self.first(id=id, provider_id=user.provider.id)
 
         elif user.get_role() == 'admin':
-            return self.get(id)
+            return self.get_for_admin(id)
 
         return None

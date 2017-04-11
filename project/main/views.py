@@ -263,8 +263,7 @@ def claim(claim_id):
                            current_user.provider.payers]
 
     form.icd_codes.choices = [(i.id, i.code) for i in \
-        ICDCode.query.filter(ICDCode.code != 'None' and \
-        ICDCode.code != '')]
+        ICDCode.query.filter(ICDCode.code != 'None' and ICDCode.code != '')]
 
     form.doctor_name.choices += [(d.id, d.name + ' (%s)' % d.doctor_type) \
                                 for d in current_user.provider.doctors]
