@@ -56,8 +56,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.__model__.query.filter(self.__model__.id != False)
 
-        else:
-            return None
+        return None
 
     def get_for_user(self, id, user):
         if user.get_type() == 'provider':
@@ -72,8 +71,7 @@ class MemberService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.get(id)
 
-        else:
-            return None
+        return None
 
 
 class ClaimService(ExtFuncsMixin, SQLAlchemyService):
@@ -91,8 +89,7 @@ class ClaimService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.__model__.query.filter(self.__model__.id != False)
 
-        else:
-            return None
+        return None
 
     def get_for_user(self, id, user):
         if user.get_type() == 'provider':
@@ -106,8 +103,7 @@ class ClaimService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.get(id)
 
-        else:
-            return None
+        return None
 
 
 class GuaranteeOfPaymentService(ExtFuncsMixin, SQLAlchemyService):
@@ -126,8 +122,7 @@ class TerminalService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.__model__.query.filter(self.__model__.id != False)
 
-        else:
-            return None
+        return None
 
     def get_for_user(self, id, user):
         if user.get_type() == 'provider':
@@ -136,5 +131,4 @@ class TerminalService(ExtFuncsMixin, SQLAlchemyService):
         elif user.get_role() == 'admin':
             return self.get(id)
 
-        else:
-            return None
+        return None

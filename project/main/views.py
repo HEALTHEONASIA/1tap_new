@@ -115,17 +115,10 @@ def index():
         '24_months': len(patients_amount(historical['24'][0], 'out'))
     }
 
-    amount_summary = {
-        'total': models.Claim.amount_sum(0)[0],
-        '0': models.Claim.amount_sum(0),
-        '1': models.Claim.amount_sum(1),
-        '2': models.Claim.amount_sum(2),
-        '3': models.Claim.amount_sum(3),
-        '4': models.Claim.amount_sum(4),
-        '5': models.Claim.amount_sum(5),
-        '6': models.Claim.amount_sum(6),
-        '24': models.Claim.amount_sum(24),
-    }
+    amount_summary = {'total': models.Claim.amount_sum(0)[0]}
+    months = ['0', '1', '2', '3', '4', '5', '6', '24']
+    for month in months:
+        amount_summary[month] = models.Claim.amount_sum(int(month))
 
     by_cost = {}
     by_icd = {}
@@ -473,8 +466,7 @@ def claim_edit(claim_id):
      # if the form was just opened
     if request.method != 'POST':
         # fill in the form with the member's data
-        exclude = ['datetime']
-        form.prepopulate(model=claim, exclude=exclude)
+        form.prepopulate(model=claim, exclude=['datetime'])
 
         form.date.data = claim.datetime
         form.time.data = claim.datetime
