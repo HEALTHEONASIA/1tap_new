@@ -542,11 +542,9 @@ def search():
 
     query = query.lower()
 
-    claim_all = Claim.query.all()
-    claim_current = []
-    claim_current = claim_all
+    claims = Claim.query.all()
 
-    for claim in claim_current:
+    for claim in claims:
         # initialazing location variable to put the claim's terminal data here,
         # if no terminal in a claim's object, it remains None
         location = None
@@ -570,21 +568,17 @@ def search():
 
 @main.route('/icd-code/search', methods=['GET'])
 def icd_code_search():
-    found = []
     query = request.args.get('query').lower()
-    
-    if not query:
-        return render_template('icd-code-search-results.html',
-                               icd_codes=None, query=query)
 
     icd_codes = ICDCode.query.all()
 
+    result = []
     fields = ['code', 'description', 'common_term']
     find = lambda query, obj, attr: query in getattr(obj, attr).lower()
 
     for icd_code in icd_codes:
         if any([find(query, icd_code, field) for field in fields]):
-            found.append(icd_code)
+            result.append(icd_code)
 
-    return render_template('icd-code-search-results.html', icd_codes=found,
+    return render_template('icd-code-search-results.html', icd_codes=result,
                                query=query)
