@@ -341,9 +341,9 @@ def claim(claim_id):
             recipient_email = gop.payer.pic_email
             rand_pass = pass_generator(size=8)
             user = User(email=gop.payer.pic_email,
-                    password=rand_pass,
-                    user_type='payer',
-                    payer=gop.payer)
+                        password=rand_pass,
+                        user_type='payer',
+                        payer=gop.payer)
             db.session.add(user)
             # getting payer id for sending notification 
             notification_payer_id = user.id
