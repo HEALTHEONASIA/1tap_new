@@ -16,6 +16,8 @@ from .forms import ClaimForm, MemberForm, TerminalForm, GOPForm
 
 from . import main
 from .. import config, db, models, mail
+from ..models import Claim, Member, Terminal, ICDCode, Provider, Payer
+from ..models import Doctor, User, GuaranteeOfPayment
 from ..models import monthdelta, login_required
 
 medical_details_service = MedicalDetailsService()
@@ -80,16 +82,16 @@ def index():
 
     if current_user.get_type() == 'payer':
         claim_ids = [gop.claim.id for gop in current_user.payer.guarantees_of_payment if gop.claim]
-        providers = models.Provider.query.join(models.Claim, models.Provider.claims)\
-            .filter(models.Claim.id.in_(claim_ids)).all()
+        providers = Provider.query.join(Claim, Provider.claims)\
+            .filter(Claim.id.in_(claim_ids)).all()
 
     if current_user.get_role() == 'admin':
-        providers = models.Provider.query.all()
+        providers = Provider.query.all()
 
     members = member_service.all_for_user(current_user).all()
 
     claims_query = claim_service.all_for_user(current_user)\
-                                .order_by(desc(models.Claim.datetime))
+                                .order_by(desc(Claim.datetime))
     claims = claims_query.all()
     total_claims = len(claims)
 
@@ -97,7 +99,7 @@ def index():
     months = ['0', '1', '3', '5', '6', '24']
     historical = {}
     for month in months:
-        historical[month] = models.Claim.for_months(int(month))
+        historical[month] = Claim.for_months(int(month))
 
     in_patients = {
         'total': len(patients_amount(claims, 'in')),
@@ -115,10 +117,10 @@ def index():
         '24_months': len(patients_amount(historical['24'][0], 'out'))
     }
 
-    amount_summary = {'total': models.Claim.amount_sum(0)[0]}
+    amount_summary = {'total': Claim.amount_sum(0)[0]}
     months = ['0', '1', '2', '3', '4', '5', '6', '24']
     for month in months:
-        amount_summary[month] = models.Claim.amount_sum(int(month))
+        amount_summary[month] = Claim.amount_sum(int(month))
 
     by_cost = {}
     by_icd = {}
@@ -247,7 +249,7 @@ def terminal_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        terminal = models.Terminal(provider_id=current_user.provider.id)
+        terminal = Terminal(provider_id=current_user.provider.id)
 
         terminal_service.update_from_form(terminal, form)
 
@@ -282,10 +284,8 @@ def terminal_edit(terminal_id):
 @main.route('/claims')
 @login_required()
 def claims():
-    claims = claim_service.all_for_user(current_user)
-
-    # order by datetime
-    claims = claims.order_by(desc(models.Claim.datetime))
+    claims = claim_service.all_for_user(current_user)\
+                          .order_by(desc(Claim.datetime))
 
     pagination, claims = claim_service.prepare_pagination(claims)
 
@@ -310,8 +310,8 @@ def claim(claim_id):
                            current_user.provider.payers]
 
     form.icd_codes.choices = [(i.id, i.code) for i in \
-        models.ICDCode.query.filter(models.ICDCode.code != 'None' and \
-        models.ICDCode.code != '')]
+        ICDCode.query.filter(ICDCode.code != 'None' and \
+        ICDCode.code != '')]
 
     form.doctor_name.choices += [(d.id, d.name + ' (%s)' % d.doctor_type) \
                                 for d in current_user.provider.doctors]
@@ -333,11 +333,11 @@ def claim(claim_id):
     if form.validate_on_submit():
         filename = photo_file_name_santizer(form.member_photo)
 
-        member = models.Member.query.filter_by(
+        member = Member.query.filter_by(
             national_id=form.national_id.data).first()
 
         if not member:
-            member = models.Member(photo=photo_filename)
+            member = Member(photo=photo_filename)
 
             member_service.update_from_form(member, form,
                                             exclude=['member_photo'])
@@ -348,21 +348,21 @@ def claim(claim_id):
                if field.name.replace('medical_details_', '') \
                in medical_details_service.columns})
 
-        payer = models.Payer.query.get(form.payer.data)
+        payer = Payer.query.get(form.payer.data)
 
-        gop = models.GuaranteeOfPayment()
+        gop = GuaranteeOfPayment()
         exclude = ['doctor_name', 'status']
 
         gop.claim = claim
         gop.payer = payer
         gop.member = member
         gop.provider = current_user.provider
-        gop.doctor_name = models.Doctor.query.get(int(form.doctor_name.data)).name
+        gop.doctor_name = Doctor.query.get(int(form.doctor_name.data)).name
         gop.status = 'pending'
         gop.medical_details = medical_details
 
         for icd_code_id in form.icd_codes.data:
-            icd_code = models.ICDCode.query.get(int(icd_code_id))
+            icd_code = ICDCode.query.get(int(icd_code_id))
             gop.icd_codes.append(icd_code)
 
         gop_service.update_from_form(gop, form, exclude=exclude)
@@ -387,7 +387,7 @@ def claim(claim_id):
         else:
             recipient_email = gop.payer.pic_email
             rand_pass = pass_generator(size=8)
-            user = models.User(email=gop.payer.pic_email,
+            user = User(email=gop.payer.pic_email,
                     password=rand_pass,
                     user_type='payer',
                     payer=gop.payer)
@@ -432,10 +432,10 @@ def claim_add():
 
     # if the form was sent
     if form.validate_on_submit():
-        claim = models.Claim(provider_id=current_user.provider.id)
+        claim = Claim(provider_id=current_user.provider.id)
         claim_service.update_from_form(claim, form)
         
-        member = models.Member.query.get(form.member_id.data)
+        member = Member.query.get(form.member_id.data)
 
         flash('The claim has been added.')
 
@@ -510,7 +510,7 @@ def member_add():
         # update the photo
         photo_filename = photo_file_name_santizer(form.photo)
 
-        member = models.Member(photo=photo_filename)
+        member = Member(photo=photo_filename)
 
         # append the patient to the provider
         # by which the patient has been created
@@ -591,7 +591,7 @@ def search():
 
     query = query.lower()
 
-    claim_all = models.Claim.query.all()
+    claim_all = Claim.query.all()
     claim_current = []
     claim_current = claim_all
 
@@ -627,7 +627,7 @@ def icd_code_search():
         return render_template('icd-code-search-results.html',
                                icd_codes=None, query=query)
 
-    icd_codes = models.ICDCode.query.all()
+    icd_codes = ICDCode.query.all()
 
     for icd_code in icd_codes:
         if query in icd_code.code.lower() \
