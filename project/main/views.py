@@ -322,7 +322,7 @@ def claim(claim_id):
         # initializing user and random password 
         user = None
         rand_pass = None
-        
+
         # if the payer is registered as a user in our system
         if gop.payer.user:
             if gop.payer.pic_email:
@@ -331,9 +331,9 @@ def claim(claim_id):
                 recipient_email = gop.payer.pic_alt_email
             else:
                 recipient_email = gop.payer.user.email
-            # getting payer id for sending notification    
+            # getting payer id for sending notification
             notification_payer_id = gop.payer.user.id
-            
+
         # if no, we register him, set the random password and send
         # the access credentials to him
         else:
@@ -385,7 +385,7 @@ def claim_add():
     if form.validate_on_submit():
         claim = Claim(provider_id=current_user.provider.id)
         claim_service.update_from_form(claim, form)
-        
+
         member = Member.query.get(form.member_id.data)
 
         flash('The claim has been added.')

@@ -48,7 +48,3 @@ def patients_amount(claims, _type):
     result = list(set(result))
 
     return result
-
-
-
-
