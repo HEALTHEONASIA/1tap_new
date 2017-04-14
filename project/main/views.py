@@ -283,7 +283,7 @@ def claim(claim_id):
         form.medical_details_previously_admitted.data = datetime.now()
 
     if form.validate_on_submit():
-        filename = photo_file_name_santizer(form.member_photo)
+        photo_filename = photo_file_name_santizer(form.member_photo)
 
         member = Member.query.filter_by(
             national_id=form.national_id.data).first()
