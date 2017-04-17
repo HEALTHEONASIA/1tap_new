@@ -307,7 +307,7 @@ def claim(claim_id):
                 payer=payer,
                 member=member,
                 provider=current_user.provider,
-                docor_name=Doctor.query.get(int(form.doctor_name.data)).name,
+                doctor_name=Doctor.query.get(int(form.doctor_name.data)).name,
                 status='pending',
                 medical_details=medical_details)
 
