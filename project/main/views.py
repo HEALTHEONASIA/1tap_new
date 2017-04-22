@@ -46,7 +46,7 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
 
 
 @main.route('/chat')
-def index():
+def chat():
     return render_template('chat.html')
 
 @main.route("/socket.io/<path:path>")
