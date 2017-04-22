@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import session, g
 from flask_cors import CORS, cross_origin
+from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_login import current_user
@@ -13,6 +14,7 @@ db = SQLAlchemy()
 mail = Mail()
 socketio = SocketIO()
 login_manager = LoginManager()
+redis_store = FlaskRedis()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
@@ -32,6 +34,7 @@ def create_app(config_name):
         g.user = current_user
 
     db.init_app(app)
+    redis_store.init_app(app)
     socketio.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)

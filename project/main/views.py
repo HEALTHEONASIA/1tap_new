@@ -8,6 +8,7 @@ from flask import jsonify, send_from_directory, session
 from flask_login import current_user, login_user
 from sqlalchemy import desc
 from flask_mail import Message
+from flask_socketio import send, emit
 
 from .services import MedicalDetailsService, MemberService, ClaimService
 from .services import GuaranteeOfPaymentService, TerminalService
@@ -16,11 +17,32 @@ from .helpers import pass_generator, photo_file_name_santizer, percent_of
 from .helpers import patients_amount
 
 from . import main
-from .. import config, db, models, mail
+from .. import config, db, models, mail, socketio, redis_store
 from ..models import Claim, Member, Terminal, ICDCode, Provider, Payer
 from ..models import Doctor, User, GuaranteeOfPayment
 from ..models import monthdelta, login_required
 
+
+@socketio.on('hello')
+def handle_hello(message):
+    print('received message: ' + str(message))
+    send(message)
+
+
+@socketio.on('check-notifications')
+def handle_notifications(data):
+    print('received data: ' + str(data))
+    notification = redis_store.get('id' + str(data))
+
+    if notification:
+        send('1 NEW: ' + notification.decode('utf-8'))
+    else:
+        send('0')
+
+
+@main.route('/socketio')
+def socketio_page():
+    return render_template('socketio.html', current_user=current_user)
 
 medical_details_service = MedicalDetailsService()
 member_service = MemberService()

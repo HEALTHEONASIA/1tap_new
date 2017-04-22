@@ -376,7 +376,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {% for amount, dateranges in by_cost.iteritems() %}
+                      {% for amount, dateranges in by_cost.items() %}
                         <tr role="row">
                           <td class="v-align-middle" style="text-align:center;"><strong>{{ amount }}</strong></td>
                           <td class="v-align-middle" style="text-align:center;" >{{ dateranges['1_month'] }}</td>
@@ -404,7 +404,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {% for icd_code, dateranges in by_icd.iteritems() %}
+                      {% for icd_code, dateranges in by_icd.items() %}
                         <tr role="row">
                           <td class="v-align-middle" style="text-align:center;"><strong>{{ icd_code }}</strong></td>
                           <td class="v-align-middle" style="text-align:center;">{{ dateranges['1_month'] }}</td>
