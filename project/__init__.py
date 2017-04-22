@@ -2,6 +2,7 @@ from flask import Flask
 from flask import session, g
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 from flask_login import LoginManager
 from flask_login import current_user
 from .config import config
@@ -11,6 +12,7 @@ from datetime import timedelta
 db = SQLAlchemy()
 mail = Mail()
 login_manager = LoginManager()
+socket_io = SocketIO()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
@@ -32,6 +34,7 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    socket_io.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
