@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_login import current_user
 from .config import config
 from flask_mail import Mail
+from gevent import monkey; monkey.patch_all()
 from datetime import timedelta
 
 db = SQLAlchemy()
