@@ -32,15 +32,16 @@ def handle_hello(message):
 @socketio.on('check-notifications')
 def handle_notifications(data):
     # try connecting to redis server
-    try:
-        notification = redis_store.get('id' + str(data))
-    except:
-        notification = None
+    # try:
+    #     notification = redis_store.get('id' + str(data))
+    # except:
+    #     notification = None
 
-    if notification:
-        # return notification text and delete it from redis
-        emit('check-notifications', notification.decode('utf-8'))
-        redis_store.delete('id' + str(data))
+    # if notification:
+    #     # return notification text and delete it from redis
+    #     emit('check-notifications', notification.decode('utf-8'))
+    #     redis_store.delete('id' + str(data))
+    emit('check-notifications', 'all is good')
 
 
 medical_details_service = MedicalDetailsService()
