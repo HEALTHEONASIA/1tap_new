@@ -1,6 +1,6 @@
 import os, random, string
 from werkzeug.utils import secure_filename
-from .. import config
+from .. import config, redis_store
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -48,3 +48,10 @@ def patients_amount(claims, _type):
     result = list(set(result))
 
     return result
+
+def notify(key, value):
+    """Helper function for shortest redis update"""
+    try:
+        redis_store.set(key, value)
+    except:
+        pass

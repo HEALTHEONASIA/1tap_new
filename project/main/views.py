@@ -25,24 +25,23 @@ from ..models import monthdelta, login_required
 
 @socketio.on('hello')
 def handle_hello(message):
-    print('received message: ' + str(message))
+    print('received hello message: ' + str(message))
     send(message)
 
 
 @socketio.on('check-notifications')
 def handle_notifications(data):
-    print('received data: ' + str(data))
-    notification = redis_store.get('id' + str(data))
+    # try connecting to redis server
+    try:
+        notification = redis_store.get('id' + str(data))
+    except:
+        notification = None
 
     if notification:
-        send('1 NEW: ' + notification.decode('utf-8'))
-    else:
-        send('0')
+        # return notification text and delete it from redis
+        emit('check-notifications', notification.decode('utf-8'))
+        redis_store.delete('id' + str(data))
 
-
-@main.route('/socketio')
-def socketio_page():
-    return render_template('socketio.html', current_user=current_user)
 
 medical_details_service = MedicalDetailsService()
 member_service = MemberService()

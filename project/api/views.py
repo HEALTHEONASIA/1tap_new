@@ -1,22 +1,42 @@
 import os, json, re, requests, random
 
 from datetime import datetime
-from flask import jsonify, request, render_template
+from functools import wraps
+from flask import jsonify, request, render_template, url_for
 from sqlalchemy import desc
 
 from .helpers import *
 from . import api
+from ..main.helpers import notify
 from .. import db, models, config
 
 
+def api_auth():
+    """Overwritten login_required decorator,
+    which includes roles checking"""
+    def wrapper(fn):
+        @wraps(fn)
+        def decorated_view(*args, **kwargs):
+            authorized, error, user = authorize_api_key()
+            if not authorized:
+                return error
+            return fn(*args, **kwargs)
+        return decorated_view
+    return wrapper
+
+# def api_auth(func):
+#     def wrapper(*args, **kwargs):
+#         authorized, error, user = authorize_api_key()
+#         if not authorized:
+#             return error
+#         return func(*args, **kwargs)
+#     return wrapper
+
+
 @api.route('/members', methods=['GET'])
+@api_auth()
 def members():
     """The function returns all the members"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     members = models.Member.query.all()
 
@@ -25,13 +45,9 @@ def members():
 
 
 @api.route('/member/<int:member_id>', methods=['GET'])
+@api_auth()
 def member_get(member_id):
     """The function returns the member by its ID"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     member = models.Member.query.get(member_id)
 
@@ -45,13 +61,9 @@ def member_get(member_id):
 
 
 @api.route('/users', methods=['GET'])
+@api_auth()
 def users():
     """The function returns all the users"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     users = models.User.query.all()
 
@@ -60,13 +72,9 @@ def users():
 
 
 @api.route('/user/<int:user_id>', methods=['GET'])
+@api_auth()
 def user_get(user_id):
     """The function returns the user by its ID"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     user = models.User.query.get(user_id)
 
@@ -80,13 +88,9 @@ def user_get(user_id):
 
 
 @api.route('/terminals', methods=['GET'])
+@api_auth()
 def terminals():
     """The function returns all the terminals"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     terminals = models.Terminal.query.all()
 
@@ -95,13 +99,9 @@ def terminals():
 
 
 @api.route('/terminal/<int:terminal_id>', methods=['GET'])
+@api_auth()
 def terminal_get(terminal_id):
     """The function returns the terminal by its ID"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     terminal = models.Terminal.query.get(terminal_id)
 
@@ -115,13 +115,9 @@ def terminal_get(terminal_id):
 
 
 @api.route('/claim', methods=['GET'])
+@api_auth()
 def claim():
     """The function returns all the claims"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     claims = models.Claim.query.all()
 
@@ -130,13 +126,9 @@ def claim():
 
 
 @api.route('/claim/<int:claim_id>', methods=['GET'])
+@api_auth()
 def claim_get(claim_id):
     """The function returns the claim by its ID"""
-
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
 
     claim = models.Claim.query.get(claim_id)
 
@@ -150,12 +142,8 @@ def claim_get(claim_id):
 
 
 @api.route('/member/add/json', methods=['POST'])
+@api_auth()
 def member_add_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     members_list = []
@@ -236,12 +224,8 @@ def member_add_json():
 
 
 @api.route('/member/edit/json', methods=['POST'])
+@api_auth()
 def member_edit_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     members_list = []
@@ -379,13 +363,9 @@ def member_register():
 
 
 @api.route('/member/logout', methods=['POST'])
+@api_auth()
 def member_logout():
     """Deletes a member's token from a database"""
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
 
@@ -467,12 +447,8 @@ def member_info_update():
 
 
 @api.route('/user/add/json', methods=['POST'])
+@api_auth()
 def user_add_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     users_list = []
@@ -538,12 +514,8 @@ def user_add_json():
 
 
 @api.route('/user/edit/json', methods=['POST'])
+@api_auth()
 def user_edit_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     users_list = []
@@ -601,12 +573,8 @@ def user_edit_json():
 
 
 @api.route('/terminal/add/json', methods=['POST'])
+@api_auth()
 def terminal_add_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     terminals_list = []
@@ -650,12 +618,8 @@ def terminal_add_json():
 
 
 @api.route('/terminal/edit/json', methods=['POST'])
+@api_auth()
 def terminal_edit_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     terminals_list = []
@@ -697,12 +661,8 @@ def terminal_edit_json():
 
 
 @api.route('/terminal/add', methods=['POST'])
+@api_auth()
 def terminal_add():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json_ = request.get_json()
 
     # find the terminal with the given device uid
@@ -727,12 +687,8 @@ def terminal_add():
 
 
 @api.route('/claim/check-new', methods=['GET'])
+@api_auth()
 def claim_check_new():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json_ = request.get_json()
 
     claims = models.Claim.query.filter_by(new_claim=1).all()
@@ -749,12 +705,8 @@ def claim_check_new():
 
 
 @api.route('/claim/add', methods=['POST'])
+@api_auth()
 def claim_add():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json_ = request.get_json()
 
     # find the member with the given device uid
@@ -779,6 +731,12 @@ def claim_add():
     db.session.add(claim)
     db.session.commit()
 
+    notification = """A <a href="%s" target="_blank">new claim #%d</a>
+        has been added!""" % (url_for('main.claim', claim_id=claim.id),
+        claim.id)
+
+    notify('id' + str(provider.user.id), notification)
+
     # returns the url on the current claim's edit page
     # it will redirect the user of the 1TAP desktop app to this page
     return jsonify([{
@@ -798,7 +756,7 @@ def claim_add_by_terminal():
 
     # find the terminal with the given device_uid
     terminal = models.Terminal.query.filter_by(
-                    device_uid=json['terminal_uid']).first()
+        device_uid=json['terminal_uid']).first()
 
     if not member:
         return jsonify({'msg': 'No such member'})
@@ -825,6 +783,11 @@ def claim_add_by_terminal():
     db.session.add(claim)
     db.session.commit()
 
+    notification = """A <a href="%s" target="_blank">new claim #%d</a>
+        has been added!""" % (url_for('main.claim', claim_id=claim.id),
+        claim.id)
+    notify('id' + str(provider.user.id), notification)
+
     claim_dict = {
         'id': claim.id,
         'status': claim.status,
@@ -838,12 +801,8 @@ def claim_add_by_terminal():
 
 
 @api.route('/claim/add/json', methods=['POST'])
+@api_auth()
 def claim_add_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     claims_list = []
@@ -905,12 +864,8 @@ def claim_add_json():
 
 
 @api.route('/claim/edit/json', methods=['POST'])
+@api_auth()
 def claim_edit_json():
-    authorized, error, user = authorize_api_key()
-
-    if not authorized:
-        return error
-
     json = request.get_json()
 
     claims_list = []
@@ -959,4 +914,3 @@ def claim_edit_json():
         db.session.add(claim)
 
     return jsonify(claims_list)
-
